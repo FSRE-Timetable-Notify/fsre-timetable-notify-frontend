@@ -30,6 +30,8 @@ RUN bun run build
 FROM base AS release
 COPY --from=install /temp/prod/node_modules node_modules
 COPY --from=prerelease /usr/src/app/dist dist
+COPY --from=prerelease /usr/src/app/public public
+COPY --from=prerelease /usr/src/app/vite.config.ts .
 COPY --from=prerelease /usr/src/app/package.json .
 
 # run the app
