@@ -1,43 +1,37 @@
+import { FsreError, TimetableDatabase } from "@/api/api";
+import { client } from "@/api/client";
 import Navbar from "@/components/navbar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { client } from "@/lib/client";
-import { ErrorResponse, handleError } from "@/lib/errors";
-import { honoFetcher } from "@/lib/fetcher";
-import { useTimetableClassStore } from "@/store/useTimetableClassStore";
-import { InferResponseType } from "hono";
+import { useTimetableStudyProgramStore } from "@/store/useTimetableStudyProgramStore";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { toast } from "sonner";
-import useSWR from "swr";
 
 const AppLayout: React.FC = () => {
-  const setTimetableClasses = useTimetableClassStore(
-    state => state.setTimetableClasses
+  const setTimetableStudyPrograms = useTimetableStudyProgramStore(
+    state => state.setTimetableStudyPrograms
   );
 
-  const $get = client.db.$get;
-
-  const { data, error, isLoading, mutate } = useSWR<
-    InferResponseType<typeof $get>,
-    ErrorResponse
-  >("/db", honoFetcher($get), {
-    onSuccess: () => {
-      toast.dismiss();
-
-      if (data !== null && data !== undefined) {
-        const newTimetableClasses: Record<number, string> = {};
-
-        data.classes.forEach(timetableClass => {
-          newTimetableClasses[timetableClass.id] = timetableClass.name;
-        });
-
-        setTimetableClasses(newTimetableClasses);
-      }
-    },
+  const { data, isLoading } = useQuery<TimetableDatabase, FsreError>({
+    queryKey: ["timetable-database"],
+    queryFn: async () =>
+      (await client.timetableDatabase.getTimetableDatabase()).data,
   });
 
-  if (error) {
-    handleError(error, mutate);
-  }
+  useEffect(() => {
+    if (!isLoading && data !== null && data !== undefined) {
+      toast.dismiss();
+
+      const newTimetableStudyPrograms: Record<number, string> = {};
+
+      data.studyPrograms.forEach(studyProgram => {
+        newTimetableStudyPrograms[studyProgram.id] = studyProgram.name;
+      });
+
+      setTimetableStudyPrograms(newTimetableStudyPrograms);
+    }
+  }, [data, isLoading, setTimetableStudyPrograms]);
 
   if (isLoading || data === undefined) {
     return (

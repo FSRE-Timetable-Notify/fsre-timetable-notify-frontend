@@ -1,48 +1,55 @@
+import { FsreError, Timetable } from "@/api/api";
+import { client } from "@/api/client";
 import ClassCombobox from "@/components/class-combobox";
-import Timetable from "@/components/timetable";
+import TimetableComponent from "@/components/timetable";
 import TimetableDatePicker from "@/components/timetable-date-picker";
 import { Skeleton } from "@/components/ui/skeleton";
-import { client } from "@/lib/client";
-import { ErrorResponse, handleError } from "@/lib/errors";
-import { honoFetcher } from "@/lib/fetcher";
+import { handleError } from "@/lib/errors";
 import { dateToIsoWeek, isoWeekToDateRange } from "@/lib/utils";
-import { useTimetableClassStore } from "@/store/useTimetableClassStore";
-import { InferResponseType } from "hono";
-import { useState } from "react";
+import { useTimetableStudyProgramStore } from "@/store/useTimetableStudyProgramStore";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import useSWR from "swr";
+import SignUpCard from "@/components/sign-up-card";
+import { useQuery } from "@tanstack/react-query";
 
 const HomePage: React.FC = () => {
   const [isoWeek, setIsoWeek] = useState<`${number}-W${number}`>(
     dateToIsoWeek(new Date())
   );
 
-  const { selectedTimetableClassId, timetableClasses, selectTimetableClass } =
-    useTimetableClassStore();
-
-  const $get = client.week.$get;
   const {
-    data: timetableEvents,
+    selectedTimetableStudyProgramId,
+    timetableStudyPrograms,
+    selectTimetableStudyProgram,
+  } = useTimetableStudyProgramStore();
+
+  const {
+    data: timetable,
     error,
     isLoading,
-    mutate,
-  } = useSWR<InferResponseType<typeof $get>, ErrorResponse>(
-    `/week?classId=${selectedTimetableClassId.toString()}&isoWeek=${isoWeek}`,
-    honoFetcher(() =>
-      $get({ query: { classId: selectedTimetableClassId.toString(), isoWeek } })
-    ),
-    {
-      onSuccess: () => {
+    refetch,
+  } = useQuery<Timetable, FsreError>({
+    queryKey: ["timetable", selectedTimetableStudyProgramId, isoWeek],
+    queryFn: async () =>
+      (
+        await client.timetable.getTimetable({
+          studyProgram: selectedTimetableStudyProgramId,
+          isoWeek,
+        })
+      ).data,
+  });
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (error) {
+        handleError(error, refetch);
+      } else {
         toast.dismiss();
-      },
+      }
     }
-  );
+  }, [error, isLoading, refetch]);
 
-  if (error) {
-    handleError(error, mutate);
-  }
-
-  if (timetableClasses === null || isLoading || timetableEvents === undefined) {
+  if (timetableStudyPrograms === null || isLoading || timetable === undefined) {
     return (
       <main className="flex h-full w-full flex-col">
         <div className="flex flex-col p-8">
@@ -50,22 +57,8 @@ const HomePage: React.FC = () => {
             FSRE Timetable
           </h1>
           <div className="mb-8 flex flex-col justify-between gap-2 md:flex-row">
-            <ClassCombobox
-              timetableClasses={timetableClasses}
-              selectedTimetableClass={selectedTimetableClassId}
-              selectTimetableClass={newTimetableClass => {
-                selectTimetableClass(newTimetableClass);
-                mutate();
-              }}
-            />
-            <TimetableDatePicker
-              range={isoWeekToDateRange(isoWeek)}
-              setRange={range => {
-                if (range.from === undefined) return;
-
-                setIsoWeek(dateToIsoWeek(range.from));
-              }}
-            />
+            <Skeleton className="h-16 w-32" />
+            <Skeleton className="h-16 w-32" />
           </div>
         </div>
         <div className="flex h-full min-h-[600px] w-full gap-8 overflow-x-auto p-8 pt-0">
@@ -94,11 +87,11 @@ const HomePage: React.FC = () => {
         <h1 className="mb-16 text-center text-2xl font-bold">FSRE Timetable</h1>
         <div className="mb-8 flex flex-col justify-between gap-2 md:flex-row">
           <ClassCombobox
-            timetableClasses={timetableClasses}
-            selectedTimetableClass={selectedTimetableClassId}
-            selectTimetableClass={newTimetableClass => {
-              selectTimetableClass(newTimetableClass);
-              mutate();
+            timetableStudyPrograms={timetableStudyPrograms}
+            selectedTimetableStudyProgramId={selectedTimetableStudyProgramId}
+            onTimetableStudyProgramSelected={newTimetableStudyProgram => {
+              selectTimetableStudyProgram(newTimetableStudyProgram);
+              refetch();
             }}
           />
           <TimetableDatePicker
@@ -112,7 +105,13 @@ const HomePage: React.FC = () => {
         </div>
       </div>
       <div className="h-full w-full overflow-x-auto p-8 pl-0 pt-0 md:p-16 md:pl-0 md:pt-0">
-        <Timetable timetableEvents={timetableEvents} />
+        <TimetableComponent
+          timetable={timetable}
+          isoWeek={isoWeek}
+        />
+      </div>
+      <div className="flex items-center justify-center">
+        <SignUpCard timetableStudyPrograms={timetableStudyPrograms} />
       </div>
     </main>
   );

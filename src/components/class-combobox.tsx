@@ -1,6 +1,6 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, smartSearch } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -16,23 +16,22 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useState } from "react";
-import { Label } from "@/components/ui/label";
 
 type Props = {
-  timetableClasses: Record<number, string> | null;
-  selectedTimetableClass: number;
-  selectTimetableClass?: (timetableClassId: number) => void;
+  timetableStudyPrograms: Record<number, string> | null;
+  selectedTimetableStudyProgramId: number;
+  onTimetableStudyProgramSelected?: (timetableStudyProgramId: number) => void;
 };
 
 const ClassCombobox: React.FC<Props> = ({
-  timetableClasses,
-  selectedTimetableClass,
-  selectTimetableClass,
+  timetableStudyPrograms,
+  selectedTimetableStudyProgramId,
+  onTimetableStudyProgramSelected,
 }) => {
-  const timetableClassItems =
-    timetableClasses === null
+  const timetableStudyProgramItems =
+    timetableStudyPrograms === null
       ? null
-      : Object.entries(timetableClasses).map(([id, name]) => ({
+      : Object.entries(timetableStudyPrograms).map(([id, name]) => ({
           value: parseInt(id, 10),
           label: name,
         }));
@@ -44,59 +43,58 @@ const ClassCombobox: React.FC<Props> = ({
       open={open}
       onOpenChange={setOpen}>
       <div className="flex items-center justify-center gap-4">
-        <Label
-          htmlFor="class"
-          className="mb-1 hidden text-muted-foreground md:flex md:text-lg">
-          Select class
-        </Label>
         <PopoverTrigger asChild>
           <Button
-            id="class"
+            id="study-program"
             variant="outline"
             aria-expanded={open}
-            disabled={timetableClassItems === null}
+            disabled={timetableStudyProgramItems === null}
             className="justify-between">
-            {timetableClassItems === null
+            {timetableStudyProgramItems === null
               ? "Loading..."
-              : timetableClassItems.find(
-                  timetableClassItem =>
-                    timetableClassItem.value === selectedTimetableClass
+              : timetableStudyProgramItems.find(
+                  timetableStudyProgramItem =>
+                    timetableStudyProgramItem.value ===
+                    selectedTimetableStudyProgramId
                 )!.label}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
       </div>
       <PopoverContent className="w-[200px] p-0">
-        {timetableClassItems !== null && (
-          <Command>
-            <CommandInput placeholder="Search class..." />
+        {timetableStudyProgramItems !== null && (
+          <Command filter={(value, search) => smartSearch(value, search)}>
+            <CommandInput placeholder="Search study programs..." />
             <CommandList>
-              <CommandEmpty>No class found.</CommandEmpty>
+              <CommandEmpty>No study program found.</CommandEmpty>
               <CommandGroup>
-                {timetableClassItems.map(timetableClassItem => (
+                {timetableStudyProgramItems.map(timetableStudyProgramItem => (
                   <CommandItem
-                    key={timetableClassItem.value}
-                    value={timetableClassItem.label}
+                    key={timetableStudyProgramItem.value}
+                    value={timetableStudyProgramItem.label}
                     onSelect={currentValue => {
-                      const value = timetableClassItems.find(
-                        timetableClassItem =>
-                          timetableClassItem.label
+                      const value = timetableStudyProgramItems.find(
+                        timetableStudyProgramItem =>
+                          timetableStudyProgramItem.label
                             .toLowerCase()
                             .includes(currentValue.toLowerCase())
                       )?.value;
 
-                      selectTimetableClass?.(value ?? selectedTimetableClass);
+                      onTimetableStudyProgramSelected?.(
+                        value ?? selectedTimetableStudyProgramId
+                      );
                       setOpen(false);
                     }}>
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        selectedTimetableClass === timetableClassItem.value
+                        selectedTimetableStudyProgramId ===
+                          timetableStudyProgramItem.value
                           ? "opacity-100"
                           : "opacity-0"
                       )}
                     />
-                    {timetableClassItem.label}
+                    {timetableStudyProgramItem.label}
                   </CommandItem>
                 ))}
               </CommandGroup>

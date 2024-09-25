@@ -4,6 +4,7 @@ import {
   formatDayMonth,
   formatShortWeekDay,
   formatTime,
+  isoWeekToWeekStartDate,
   range,
 } from "@/lib/utils";
 import {
@@ -20,19 +21,20 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { TimetableEvents } from "@/lib/types";
-import { addDays, startOfWeek } from "date-fns";
+import { addDays } from "date-fns";
+import type { Timetable, TimetableEvent } from "@/api/api";
 
 type Props = {
-  timetableEvents: TimetableEvents;
+  timetable: Timetable;
+  isoWeek: `${number}-W${number}`;
 };
 
-const Timetable: React.FC<Props> = ({ timetableEvents }) => {
+const Timetable: React.FC<Props> = ({ timetable, isoWeek }) => {
+  const timetableEvents = (Object.values(timetable) as TimetableEvent[]).flat();
+
   const weekDays = range(5).map(i => ({
-    label: formatShortWeekDay(
-      addDays(startOfWeek(timetableEvents[0].startDate), i)
-    ),
-    date: formatDayMonth(addDays(startOfWeek(timetableEvents[0].startDate), i)),
+    label: formatShortWeekDay(addDays(isoWeekToWeekStartDate(isoWeek), i)),
+    date: formatDayMonth(addDays(isoWeekToWeekStartDate(isoWeek), i)),
   }));
 
   return (
