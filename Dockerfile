@@ -35,8 +35,7 @@ COPY --from=prerelease /usr/src/app/vite.config.ts .
 COPY --from=prerelease /usr/src/app/package.json .
 COPY --from=prerelease /usr/src/app/index.html .
 
-# create a non-root user
-RUN adduser --disabled-password --gecos "" bun
+# give the bun user ownership of the app directory
 RUN chown -R bun:bun /usr/src/app
 
 # run the app
