@@ -17,11 +17,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { FsreError, MessagingSubscription } from "@/api/api";
+import { FsreError, HttpResponse, MessagingSubscription } from "@/api/api";
 import { client } from "@/api/client";
 import { useMutation } from "@tanstack/react-query";
 import ClassCombobox from "./class-combobox";
 import { toast } from "sonner";
+import { handleError } from "@/lib/errors";
 
 const formSchema = z.object({
   studyProgramId: z.number().int(),
@@ -42,12 +43,18 @@ const SignUpCard: React.FC<Props> = ({ timetableStudyPrograms }) => {
   });
   const { isPending, mutateAsync } = useMutation<
     MessagingSubscription,
-    FsreError,
+    HttpResponse<never, FsreError>,
     z.infer<typeof formSchema>
   >({
     mutationKey: ["subscribe"],
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       return (await client.messaging.subscribe(data)).data;
+    },
+    onError: ({ error }) => {
+      handleError(error);
+    },
+    onSuccess: () => {
+      toast.dismiss();
     },
   });
 

@@ -5,11 +5,13 @@ export const handleError = (
   error: unknown,
   refetch?: () => Promise<unknown>
 ) => {
-  console.error(error);
-
   const message = mapErrorToMessage(error);
-  const id = toast.error("An error has occured", {
-    description: message,
+
+  const title = Array.isArray(message) ? message[0] : "An error has occured";
+  const description = Array.isArray(message) ? message[1] : message;
+
+  const id = toast.error(title, {
+    description,
     cancel: {
       label: "Dismiss",
       onClick: () => {
