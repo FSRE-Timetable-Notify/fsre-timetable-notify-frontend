@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/card";
 import { addDays } from "date-fns";
 import type { Timetable, TimetableEvent } from "@/api/api";
+import { UTCDate } from "@date-fns/utc";
 
 type Props = {
   timetable: Timetable;
@@ -59,58 +60,77 @@ const Timetable: React.FC<Props> = ({ timetable, isoWeek }) => {
       <tbody className="relative">
         <tr className="absolute ml-[16.66%] grid h-full w-5/6 grid-cols-5 grid-rows-[repeat(48,minmax(0,1fr))]">
           {timetableEvents.map(timetableEvent => {
-            const startDate = new Date(timetableEvent.startDate);
-            const endDate = new Date(timetableEvent.endDate);
+            const startDate = new UTCDate(timetableEvent.startDate);
+            const endDate = new UTCDate(timetableEvent.endDate);
 
+            const startDateLocal = new Date(startDate.toLocaleString());
+            const endDateLocal = new Date(endDate.toLocaleString());
             const startIndex =
-              startDate.getHours() <= 8 && startDate.getMinutes() < 15
+              startDateLocal.getHours() <= 8 && startDateLocal.getMinutes() < 15
                 ? 1
-                : (startDate.getHours() - 8) * 4 +
+                : (startDateLocal.getHours() - 8) * 4 +
                   1 +
-                  startDate.getMinutes() / 15;
+                  startDateLocal.getMinutes() / 15;
             const endIndex =
-              endDate.getHours() >= 20
+              endDateLocal.getHours() >= 20
                 ? 49
-                : (endDate.getHours() - 8) * 4 + 1 + endDate.getMinutes() / 15;
+                : (endDateLocal.getHours() - 8) * 4 +
+                  1 +
+                  endDateLocal.getMinutes() / 15;
 
             const isSmall = endIndex - startIndex <= 6;
 
-            const isOverlappedWithAnotherEvent = timetableEvents.some(
-              event =>
-                event.id !== timetableEvent.id &&
-                new Date(event.startDate).getTime() < endDate.getTime() &&
-                new Date(event.endDate).getTime() > startDate.getTime()
-            );
-
-            const isSecondEventInOverlapCase =
-              isOverlappedWithAnotherEvent &&
-              timetableEvents.some(
-                event =>
-                  event.id !== timetableEvent.id &&
-                  new Date(event.startDate).getTime() < endDate.getTime() &&
-                  new Date(event.endDate).getTime() > startDate.getTime() &&
-                  new Date(event.startDate).getTime() < startDate.getTime()
+            // check for both left and right events
+            // events can have the same id or name, and can have the same start and end dates
+            // only way to differentiate them is to check their id and name
+            // the first and second events are positioned either using id (lower value is left) or name (lower alphabetically is left)
+            const isOverlappedWithAnotherEvent = timetableEvents.some(event => {
+              return (
+                (event.id !== timetableEvent.id ||
+                  event.name !== timetableEvent.name) &&
+                new UTCDate(event.startDate).getTime() < endDate.getTime() &&
+                new UTCDate(event.endDate).getTime() > startDate.getTime()
               );
+            });
+
+            // the second event is higher in id value or alphabetically by nae
+            const isSecondEventInOverlapCase = timetableEvents.some(event => {
+              return (
+                (event.id !== timetableEvent.id ||
+                  event.name !== timetableEvent.name) &&
+                new UTCDate(event.startDate).getTime() < endDate.getTime() &&
+                new UTCDate(event.endDate).getTime() > startDate.getTime() &&
+                (event.id < timetableEvent.id ||
+                  event.name < timetableEvent.name)
+              );
+            });
 
             return (
               <td
-                key={timetableEvent.id + timetableEvent.startDate}
+                key={
+                  timetableEvent.id +
+                  timetableEvent.name +
+                  timetableEvent.startDate
+                }
                 style={{
                   gridRowStart: startIndex,
                   gridRowEnd: endIndex,
                   gridColumn: startDate.getDay(),
                 }}
-                className="m-px rounded-md">
+                className={cn(
+                  "m-px rounded-md",
+                  isOverlappedWithAnotherEvent
+                    ? "w-[calc(50%-2px)]"
+                    : "w-unset",
+                  isSecondEventInOverlapCase ? "ml-auto" : ""
+                )}>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       className={cn(
                         "flex h-full justify-between bg-primary/90 p-1 text-primary-foreground hover:bg-primary/80",
                         isSmall ? "flex-row-reverse" : "flex-col",
-                        isOverlappedWithAnotherEvent
-                          ? "w-[calc(50%-1px)]"
-                          : "w-full",
-                        isSecondEventInOverlapCase ? "ml-auto" : ""
+                        "w-full"
                       )}
                       variant="secondary">
                       <span
@@ -143,9 +163,11 @@ const Timetable: React.FC<Props> = ({ timetable, isoWeek }) => {
                           {timetableEvent.name}
                         </CardTitle>
                         <CardDescription className="flex flex-col">
-                          <span>{formatDate(timetableEvent.startDate)}</span>
                           <span>
-                            {`${formatTime({ date: timetableEvent.startDate })} - ${formatTime({ date: timetableEvent.endDate })}`}
+                            {formatDate(new UTCDate(timetableEvent.startDate))}
+                          </span>
+                          <span>
+                            {`${formatTime({ utcDate: new UTCDate(timetableEvent.startDate) })} - ${formatTime({ utcDate: new UTCDate(timetableEvent.endDate) })}`}
                           </span>
                         </CardDescription>
                       </CardHeader>

@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { addDays, format, parseISO, startOfWeek } from "date-fns";
+import { UTCDate } from "@date-fns/utc";
 import { DateRange } from "react-day-picker";
 import { twMerge } from "tailwind-merge";
 import { characterMap } from "./const";
@@ -13,18 +14,18 @@ export function capitalize(str: string) {
 }
 
 export function formatTime(
-  options: { h: number; m: number } | { date: Date | string }
+  options: { h: number; m: number } | { utcDate: UTCDate }
 ) {
   return format(
-    "date" in options
-      ? new Date(options.date)
+    "utcDate" in options
+      ? new Date(options.utcDate.toLocaleString())
       : new Date().setHours(options.h, options.m, 0, 0),
     "p"
   );
 }
 
-export function dateToIsoWeek(date: Date | string): `${number}-W${number}` {
-  return format(new Date(date), "yyyy-'W'II") as `${number}-W${number}`;
+export function dateToIsoWeek(date: Date): `${number}-W${number}` {
+  return format(date, "yyyy-'W'II") as `${number}-W${number}`;
 }
 
 export function isoWeekToWeekStartDate(isoWeek: `${number}-W${number}`) {
@@ -35,7 +36,7 @@ export function isoWeekToWeekStartDate(isoWeek: `${number}-W${number}`) {
   const [year, week] = isoWeek.split("-W");
   const isoDate = `${year}-W${week}-1`;
 
-  return startOfWeek(parseISO(isoDate));
+  return new UTCDate(startOfWeek(parseISO(isoDate)));
 }
 
 export function isValidISOWeek(isoWeek: `${number}-W${number}`) {
@@ -43,22 +44,22 @@ export function isValidISOWeek(isoWeek: `${number}-W${number}`) {
 }
 
 export function isoWeekToDateRange(isoWeek: `${number}-W${number}`): DateRange {
-  const monday = isoWeekToWeekStartDate(isoWeek);
+  const monday = new Date(isoWeekToWeekStartDate(isoWeek));
   const sunday = addDays(monday, 6);
 
   return { from: monday, to: sunday };
 }
 
-export function formatDate(date: Date | string) {
-  return format(new Date(date), "PPP");
+export function formatDate(utcDate: UTCDate) {
+  return format(new Date(utcDate), "PPP");
 }
 
-export function formatDayMonth(date: Date | string) {
-  return format(new Date(date), "dd/MM");
+export function formatDayMonth(utcDate: UTCDate) {
+  return format(new Date(utcDate), "dd/MM");
 }
 
-export function formatShortWeekDay(date: Date | string) {
-  return capitalize(format(new Date(date), "EEE"));
+export function formatShortWeekDay(utcDate: UTCDate) {
+  return capitalize(format(new Date(utcDate), "EEE"));
 }
 
 export function range(n: number) {

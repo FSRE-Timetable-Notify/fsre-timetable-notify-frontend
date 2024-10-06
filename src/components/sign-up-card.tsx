@@ -21,7 +21,6 @@ import { FsreError, MessagingSubscription } from "@/api/api";
 import { client } from "@/api/client";
 import { useMutation } from "@tanstack/react-query";
 import ClassCombobox from "./class-combobox";
-import { handleError } from "@/lib/errors";
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -41,7 +40,7 @@ const SignUpCard: React.FC<Props> = ({ timetableStudyPrograms }) => {
       email: "",
     },
   });
-  const { error, isPending, mutateAsync } = useMutation<
+  const { isPending, mutateAsync } = useMutation<
     MessagingSubscription,
     FsreError,
     z.infer<typeof formSchema>
@@ -51,12 +50,6 @@ const SignUpCard: React.FC<Props> = ({ timetableStudyPrograms }) => {
       return (await client.messaging.subscribe(data)).data;
     },
   });
-
-  if (!isPending) {
-    if (error) {
-      handleError(error);
-    }
-  }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     await mutateAsync(data);

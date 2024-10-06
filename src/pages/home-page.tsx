@@ -4,17 +4,16 @@ import ClassCombobox from "@/components/class-combobox";
 import TimetableComponent from "@/components/timetable";
 import TimetableDatePicker from "@/components/timetable-date-picker";
 import { Skeleton } from "@/components/ui/skeleton";
-import { handleError } from "@/lib/errors";
-import { dateToIsoWeek, isoWeekToDateRange } from "@/lib/utils";
+import { isoWeekToDateRange, dateToIsoWeek } from "@/lib/utils";
 import { useTimetableStudyProgramStore } from "@/store/useTimetableStudyProgramStore";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import SignUpCard from "@/components/sign-up-card";
 import { useQuery } from "@tanstack/react-query";
+import { UTCDate } from "@date-fns/utc";
 
 const HomePage: React.FC = () => {
   const [isoWeek, setIsoWeek] = useState<`${number}-W${number}`>(
-    dateToIsoWeek(new Date())
+    dateToIsoWeek(new UTCDate())
   );
 
   const {
@@ -25,7 +24,6 @@ const HomePage: React.FC = () => {
 
   const {
     data: timetable,
-    error,
     isLoading,
     refetch,
   } = useQuery<Timetable, FsreError>({
@@ -38,16 +36,6 @@ const HomePage: React.FC = () => {
         })
       ).data,
   });
-
-  useEffect(() => {
-    if (!isLoading) {
-      if (error) {
-        handleError(error, refetch);
-      } else {
-        toast.dismiss();
-      }
-    }
-  }, [error, isLoading, refetch]);
 
   if (timetableStudyPrograms === null || isLoading || timetable === undefined) {
     return (
