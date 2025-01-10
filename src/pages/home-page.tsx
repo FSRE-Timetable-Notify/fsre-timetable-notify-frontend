@@ -1,7 +1,7 @@
 import { FsreError, Timetable } from "@/api/api";
 import { client } from "@/api/client";
 import ClassCombobox from "@/components/class-combobox";
-import TimetableComponent from "@/components/timetable";
+import TimetableView from "@/components/timetable-view";
 import TimetableDatePicker from "@/components/timetable-date-picker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isoWeekToDateRange, dateToIsoWeek } from "@/lib/utils";
@@ -93,7 +93,7 @@ const HomePage: React.FC = () => {
         </div>
       </div>
       <div className="h-full w-full overflow-x-auto p-8 pl-0 pt-0 md:p-16 md:pl-0 md:pt-0">
-        <TimetableComponent
+        <TimetableView
           timetable={timetable}
           isoWeek={isoWeek}
         />

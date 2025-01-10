@@ -4,6 +4,7 @@ import {
   formatDayMonth,
   formatShortWeekDay,
   formatTime,
+  getDaysInTimetable,
   isoWeekToWeekStartDate,
   range,
 } from "@/lib/utils";
@@ -24,16 +25,22 @@ import {
 import { addDays } from "date-fns";
 import type { Timetable, TimetableEvent } from "@/api/api";
 import { UTCDate } from "@date-fns/utc";
+import { useMemo } from "react";
 
 type Props = {
   timetable: Timetable;
   isoWeek: `${number}-W${number}`;
 };
 
-const Timetable: React.FC<Props> = ({ timetable, isoWeek }) => {
+const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
   const timetableEvents = (Object.values(timetable) as TimetableEvent[]).flat();
 
-  const weekDays = range(5).map(i => ({
+  const daysInTimetable = useMemo(
+    () => getDaysInTimetable(timetable),
+    [timetable]
+  );
+
+  const weekDays = range(daysInTimetable).map(i => ({
     label: formatShortWeekDay(addDays(isoWeekToWeekStartDate(isoWeek), i)),
     date: formatDayMonth(addDays(isoWeekToWeekStartDate(isoWeek), i)),
   }));
@@ -58,7 +65,15 @@ const Timetable: React.FC<Props> = ({ timetable, isoWeek }) => {
         </tr>
       </thead>
       <tbody className="relative">
-        <tr className="absolute ml-[16.66%] grid h-full w-5/6 grid-cols-5 grid-rows-[repeat(48,minmax(0,1fr))]">
+        <tr
+          className={cn(
+            "absolute ml-[16.66%] grid h-full w-5/6 grid-rows-[repeat(48,minmax(0,1fr))]",
+            {
+              "grid-cols-7": daysInTimetable === 7,
+              "grid-cols-6": daysInTimetable === 6,
+              "grid-cols-5": daysInTimetable === 5,
+            }
+          )}>
           {timetableEvents.map(timetableEvent => {
             const startDate = new UTCDate(timetableEvent.startDate);
             const endDate = new UTCDate(timetableEvent.endDate);
@@ -197,7 +212,7 @@ const Timetable: React.FC<Props> = ({ timetable, isoWeek }) => {
                 </span>
               </div>
             </th>
-            {range(5).map(m => (
+            {range(daysInTimetable).map(m => (
               <td
                 className="border border-border/40"
                 key={m}></td>
@@ -209,4 +224,4 @@ const Timetable: React.FC<Props> = ({ timetable, isoWeek }) => {
   );
 };
 
-export default Timetable;
+export default TimetableView;

@@ -4,6 +4,7 @@ import { UTCDate } from "@date-fns/utc";
 import { DateRange } from "react-day-picker";
 import { twMerge } from "tailwind-merge";
 import { characterMap } from "./const";
+import { Timetable } from "@/api/api";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -135,4 +136,19 @@ export function getSimilarityScore(str1: string, str2: string): number {
   const score = 1 - distance / maxLen;
 
   return Math.max(0, Math.min(0.6, score));
+}
+
+/**
+ * Get the number of non-empty days in a timetable. The minimum (standard) amount is 5 workdays per week (Mon - Fri), but sometimes classes are also held on Saturdays or Sundays.
+ *
+ * @param timetable The timetable to count the days from
+ * @returns The number of days in the timetable (5-7)
+ */
+export function getDaysInTimetable(timetable: Timetable) {
+  const days = Object.entries(timetable).filter(
+    ([weekDay, classes]) =>
+      (weekDay !== "saturday" && weekDay !== "sunday") || classes.length > 0
+  ).length;
+
+  return Math.max(5, Math.min(7, days));
 }
