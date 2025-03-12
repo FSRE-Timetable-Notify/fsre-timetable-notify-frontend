@@ -1,39 +1,17 @@
-# React + TypeScript + Vite
+# FSRE Timetable Notifier Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and
-some ESLint rules.
+Frontend for the FSRE Timetable Notifier project. Made with Typescript, React, and Tailwind.
 
-Currently, two official plugins are available:
+## Components
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md)
-  uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc)
-  uses [SWC](https://swc.rs/) for Fast Refresh
+The web app is made up of 2 main components: the timetable view and the sign-up form.
 
-## Expanding the ESLint configuration
+### Timetable view
 
-If you are developing a production application, we recommend updating the
-configuration to enable type aware lint rules:
+The timetable view serves 2 purposes: to verify that the backend is receiving the correct information, and to serve an alternative, more modern UI which displays the timetable events.
 
-- Configure the top-level `parserOptions` property like this:
+There are additional controls which allow you to select the study program to view, and the week of the year.
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
-    project: ["./tsconfig.json", "./tsconfig.node.json"],
-    tsconfigRootDir: __dirname,
-  },
-};
-```
+### Sign-up form
 
-- Replace `plugin:@typescript-eslint/recommended` to
-  `plugin:@typescript-eslint/recommended-type-checked` or
-  `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install
-  [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and
-  add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends`
-  list
+The sign-up form is where users can input their email address to receive notifications about timetable changes. The changes are detected by the backend and propagated to each email, depending on the study program. Each email can correspond to multiple study programs, allowing users to listen to multiple timetables.
