@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
+// @ts-nocheck
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -15,76 +16,7 @@ export interface FsreError {
    * HTTP status code of the error
    * @example "500"
    */
-  status:
-    | "100 CONTINUE"
-    | "101 SWITCHING_PROTOCOLS"
-    | "102 PROCESSING"
-    | "103 EARLY_HINTS"
-    | "103 CHECKPOINT"
-    | "200 OK"
-    | "201 CREATED"
-    | "202 ACCEPTED"
-    | "203 NON_AUTHORITATIVE_INFORMATION"
-    | "204 NO_CONTENT"
-    | "205 RESET_CONTENT"
-    | "206 PARTIAL_CONTENT"
-    | "207 MULTI_STATUS"
-    | "208 ALREADY_REPORTED"
-    | "226 IM_USED"
-    | "300 MULTIPLE_CHOICES"
-    | "301 MOVED_PERMANENTLY"
-    | "302 FOUND"
-    | "302 MOVED_TEMPORARILY"
-    | "303 SEE_OTHER"
-    | "304 NOT_MODIFIED"
-    | "305 USE_PROXY"
-    | "307 TEMPORARY_REDIRECT"
-    | "308 PERMANENT_REDIRECT"
-    | "400 BAD_REQUEST"
-    | "401 UNAUTHORIZED"
-    | "402 PAYMENT_REQUIRED"
-    | "403 FORBIDDEN"
-    | "404 NOT_FOUND"
-    | "405 METHOD_NOT_ALLOWED"
-    | "406 NOT_ACCEPTABLE"
-    | "407 PROXY_AUTHENTICATION_REQUIRED"
-    | "408 REQUEST_TIMEOUT"
-    | "409 CONFLICT"
-    | "410 GONE"
-    | "411 LENGTH_REQUIRED"
-    | "412 PRECONDITION_FAILED"
-    | "413 PAYLOAD_TOO_LARGE"
-    | "413 REQUEST_ENTITY_TOO_LARGE"
-    | "414 URI_TOO_LONG"
-    | "414 REQUEST_URI_TOO_LONG"
-    | "415 UNSUPPORTED_MEDIA_TYPE"
-    | "416 REQUESTED_RANGE_NOT_SATISFIABLE"
-    | "417 EXPECTATION_FAILED"
-    | "418 I_AM_A_TEAPOT"
-    | "419 INSUFFICIENT_SPACE_ON_RESOURCE"
-    | "420 METHOD_FAILURE"
-    | "421 DESTINATION_LOCKED"
-    | "422 UNPROCESSABLE_ENTITY"
-    | "423 LOCKED"
-    | "424 FAILED_DEPENDENCY"
-    | "425 TOO_EARLY"
-    | "426 UPGRADE_REQUIRED"
-    | "428 PRECONDITION_REQUIRED"
-    | "429 TOO_MANY_REQUESTS"
-    | "431 REQUEST_HEADER_FIELDS_TOO_LARGE"
-    | "451 UNAVAILABLE_FOR_LEGAL_REASONS"
-    | "500 INTERNAL_SERVER_ERROR"
-    | "501 NOT_IMPLEMENTED"
-    | "502 BAD_GATEWAY"
-    | "503 SERVICE_UNAVAILABLE"
-    | "504 GATEWAY_TIMEOUT"
-    | "505 HTTP_VERSION_NOT_SUPPORTED"
-    | "506 VARIANT_ALSO_NEGOTIATES"
-    | "507 INSUFFICIENT_STORAGE"
-    | "508 LOOP_DETECTED"
-    | "509 BANDWIDTH_LIMIT_EXCEEDED"
-    | "510 NOT_EXTENDED"
-    | "511 NETWORK_AUTHENTICATION_REQUIRED";
+  status: FsreErrorStatusEnum;
   /**
    * Error code of the error
    * @example "Internal Server Error"
@@ -158,18 +90,26 @@ export interface TimetableEvent {
    * @format int64
    */
   id: number;
+  /** The department which the timetable event belongs to */
+  department: TimetableEventDepartmentEnum;
+  /** The type of the timetable event */
+  type: TimetableEventTypeEnum;
+  /** The year of study the timetable event is intended for */
+  year: TimetableEventYearEnum;
+  /** The directions/specializations which the event is intended for */
+  directions: (string | null)[];
   /** Name of the event */
   name: string;
   /**
    * Start date and time of the event
    * @format date-time
    */
-  startDate: string;
+  startDateTime: string;
   /**
    * End date and time of the event
    * @format date-time
    */
-  endDate: string;
+  endDateTime: string;
   /** The IDs of the study programs this event is intended for */
   studyProgramIds: number[];
   /** The IDs of the classrooms the event will take place in */
@@ -203,10 +143,27 @@ export interface IdNamePairString {
   name: string;
 }
 
+/** A study program characterized by study year and department */
+export interface StudyProgram {
+  /**
+   * The ID of the study program
+   * @format int64
+   */
+  id: number;
+  /** The full name of the study program */
+  name: string;
+  /** The year of study the timetable event is intended for */
+  studyYear: StudyProgramStudyYearEnum;
+  /** The department which the timetable event belongs to */
+  department: StudyProgramDepartmentEnum;
+  /** The direction/specialization which the study program belongs to */
+  direction: string | null;
+}
+
 /** The database of timetable definitions (names of subjects, teachers, etc.) */
 export interface TimetableDatabase {
-  /** List of study programs (id of the study program and readable name) */
-  studyPrograms: IdNamePairLong[];
+  /** List of study programs */
+  studyPrograms: StudyProgram[];
   /** List of classrooms (id of the classroom and readable name) */
   classRooms: IdNamePairLong[];
   /** List of event types (id of the event type and readable name) */
@@ -215,6 +172,122 @@ export interface TimetableDatabase {
   subjects: IdNamePairLong[];
   /** List of teachers (id of the teacher and readable name) */
   teachers: IdNamePairLong[];
+}
+
+/**
+ * HTTP status code of the error
+ * @example "500"
+ */
+export enum FsreErrorStatusEnum {
+  Value100CONTINUE = "100 CONTINUE",
+  Value101SWITCHINGPROTOCOLS = "101 SWITCHING_PROTOCOLS",
+  Value102PROCESSING = "102 PROCESSING",
+  Value103EARLYHINTS = "103 EARLY_HINTS",
+  Value103CHECKPOINT = "103 CHECKPOINT",
+  Value200OK = "200 OK",
+  Value201CREATED = "201 CREATED",
+  Value202ACCEPTED = "202 ACCEPTED",
+  Value203NONAUTHORITATIVEINFORMATION = "203 NON_AUTHORITATIVE_INFORMATION",
+  Value204NOCONTENT = "204 NO_CONTENT",
+  Value205RESETCONTENT = "205 RESET_CONTENT",
+  Value206PARTIALCONTENT = "206 PARTIAL_CONTENT",
+  Value207MULTISTATUS = "207 MULTI_STATUS",
+  Value208ALREADYREPORTED = "208 ALREADY_REPORTED",
+  Value226IMUSED = "226 IM_USED",
+  Value300MULTIPLECHOICES = "300 MULTIPLE_CHOICES",
+  Value301MOVEDPERMANENTLY = "301 MOVED_PERMANENTLY",
+  Value302FOUND = "302 FOUND",
+  Value302MOVEDTEMPORARILY = "302 MOVED_TEMPORARILY",
+  Value303SEEOTHER = "303 SEE_OTHER",
+  Value304NOTMODIFIED = "304 NOT_MODIFIED",
+  Value305USEPROXY = "305 USE_PROXY",
+  Value307TEMPORARYREDIRECT = "307 TEMPORARY_REDIRECT",
+  Value308PERMANENTREDIRECT = "308 PERMANENT_REDIRECT",
+  Value400BADREQUEST = "400 BAD_REQUEST",
+  Value401UNAUTHORIZED = "401 UNAUTHORIZED",
+  Value402PAYMENTREQUIRED = "402 PAYMENT_REQUIRED",
+  Value403FORBIDDEN = "403 FORBIDDEN",
+  Value404NOTFOUND = "404 NOT_FOUND",
+  Value405METHODNOTALLOWED = "405 METHOD_NOT_ALLOWED",
+  Value406NOTACCEPTABLE = "406 NOT_ACCEPTABLE",
+  Value407PROXYAUTHENTICATIONREQUIRED = "407 PROXY_AUTHENTICATION_REQUIRED",
+  Value408REQUESTTIMEOUT = "408 REQUEST_TIMEOUT",
+  Value409CONFLICT = "409 CONFLICT",
+  Value410GONE = "410 GONE",
+  Value411LENGTHREQUIRED = "411 LENGTH_REQUIRED",
+  Value412PRECONDITIONFAILED = "412 PRECONDITION_FAILED",
+  Value413PAYLOADTOOLARGE = "413 PAYLOAD_TOO_LARGE",
+  Value413REQUESTENTITYTOOLARGE = "413 REQUEST_ENTITY_TOO_LARGE",
+  Value414URITOOLONG = "414 URI_TOO_LONG",
+  Value414REQUESTURITOOLONG = "414 REQUEST_URI_TOO_LONG",
+  Value415UNSUPPORTEDMEDIATYPE = "415 UNSUPPORTED_MEDIA_TYPE",
+  Value416REQUESTEDRANGENOTSATISFIABLE = "416 REQUESTED_RANGE_NOT_SATISFIABLE",
+  Value417EXPECTATIONFAILED = "417 EXPECTATION_FAILED",
+  Value418IAMATEAPOT = "418 I_AM_A_TEAPOT",
+  Value419INSUFFICIENTSPACEONRESOURCE = "419 INSUFFICIENT_SPACE_ON_RESOURCE",
+  Value420METHODFAILURE = "420 METHOD_FAILURE",
+  Value421DESTINATIONLOCKED = "421 DESTINATION_LOCKED",
+  Value422UNPROCESSABLEENTITY = "422 UNPROCESSABLE_ENTITY",
+  Value423LOCKED = "423 LOCKED",
+  Value424FAILEDDEPENDENCY = "424 FAILED_DEPENDENCY",
+  Value425TOOEARLY = "425 TOO_EARLY",
+  Value426UPGRADEREQUIRED = "426 UPGRADE_REQUIRED",
+  Value428PRECONDITIONREQUIRED = "428 PRECONDITION_REQUIRED",
+  Value429TOOMANYREQUESTS = "429 TOO_MANY_REQUESTS",
+  Value431REQUESTHEADERFIELDSTOOLARGE = "431 REQUEST_HEADER_FIELDS_TOO_LARGE",
+  Value451UNAVAILABLEFORLEGALREASONS = "451 UNAVAILABLE_FOR_LEGAL_REASONS",
+  Value500INTERNALSERVERERROR = "500 INTERNAL_SERVER_ERROR",
+  Value501NOTIMPLEMENTED = "501 NOT_IMPLEMENTED",
+  Value502BADGATEWAY = "502 BAD_GATEWAY",
+  Value503SERVICEUNAVAILABLE = "503 SERVICE_UNAVAILABLE",
+  Value504GATEWAYTIMEOUT = "504 GATEWAY_TIMEOUT",
+  Value505HTTPVERSIONNOTSUPPORTED = "505 HTTP_VERSION_NOT_SUPPORTED",
+  Value506VARIANTALSONEGOTIATES = "506 VARIANT_ALSO_NEGOTIATES",
+  Value507INSUFFICIENTSTORAGE = "507 INSUFFICIENT_STORAGE",
+  Value508LOOPDETECTED = "508 LOOP_DETECTED",
+  Value509BANDWIDTHLIMITEXCEEDED = "509 BANDWIDTH_LIMIT_EXCEEDED",
+  Value510NOTEXTENDED = "510 NOT_EXTENDED",
+  Value511NETWORKAUTHENTICATIONREQUIRED = "511 NETWORK_AUTHENTICATION_REQUIRED",
+}
+
+/** The department which the timetable event belongs to */
+export enum TimetableEventDepartmentEnum {
+  COMPUTER_SCIENCE = "COMPUTER_SCIENCE",
+  ELECTRICAL_ENGINEERING = "ELECTRICAL_ENGINEERING",
+  MECHANICAL_ENGINEERING = "MECHANICAL_ENGINEERING",
+}
+
+/** The type of the timetable event */
+export enum TimetableEventTypeEnum {
+  LECTURE = "LECTURE",
+  EXERCISE = "EXERCISE",
+  LECTURE_AND_EXERCISE = "LECTURE_AND_EXERCISE",
+  LABS = "LABS",
+}
+
+/** The year of study the timetable event is intended for */
+export enum TimetableEventYearEnum {
+  FIRST = "FIRST",
+  SECOND = "SECOND",
+  THIRD = "THIRD",
+  FOURTH = "FOURTH",
+  FIFTH = "FIFTH",
+}
+
+/** The year of study the timetable event is intended for */
+export enum StudyProgramStudyYearEnum {
+  FIRST = "FIRST",
+  SECOND = "SECOND",
+  THIRD = "THIRD",
+  FOURTH = "FOURTH",
+  FIFTH = "FIFTH",
+}
+
+/** The department which the timetable event belongs to */
+export enum StudyProgramDepartmentEnum {
+  COMPUTER_SCIENCE = "COMPUTER_SCIENCE",
+  ELECTRICAL_ENGINEERING = "ELECTRICAL_ENGINEERING",
+  MECHANICAL_ENGINEERING = "MECHANICAL_ENGINEERING",
 }
 
 export namespace Messaging {
@@ -272,7 +345,7 @@ export namespace Timetable {
        * @format int64
        * @example -54
        */
-      studyProgram: number;
+      studyProgram?: number;
       /**
        * ISO week
        * @example "2024-W09"
@@ -334,7 +407,7 @@ export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
   baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
   securityWorker?: (
-    securityData: SecurityDataType | null
+    securityData: SecurityDataType | null,
   ) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
@@ -349,13 +422,14 @@ type CancelToken = Symbol | string | number;
 
 export enum ContentType {
   Json = "application/json",
+  JsonApi = "application/vnd.api+json",
   FormData = "multipart/form-data",
   UrlEncoded = "application/x-www-form-urlencoded",
   Text = "text/plain",
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:5000";
+  public baseUrl: string = "http://mapokapo.zapto.org:5000";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -394,13 +468,13 @@ export class HttpClient<SecurityDataType = unknown> {
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
     const keys = Object.keys(query).filter(
-      key => "undefined" !== typeof query[key]
+      (key) => "undefined" !== typeof query[key],
     );
     return keys
-      .map(key =>
+      .map((key) =>
         Array.isArray(query[key])
           ? this.addArrayQueryParam(query, key)
-          : this.addQueryParam(query, key)
+          : this.addQueryParam(query, key),
       )
       .join("&");
   }
@@ -415,12 +489,20 @@ export class HttpClient<SecurityDataType = unknown> {
       input !== null && (typeof input === "object" || typeof input === "string")
         ? JSON.stringify(input)
         : input,
+    [ContentType.JsonApi]: (input: any) =>
+      input !== null && (typeof input === "object" || typeof input === "string")
+        ? JSON.stringify(input)
+        : input,
     [ContentType.Text]: (input: any) =>
       input !== null && typeof input !== "string"
         ? JSON.stringify(input)
         : input,
-    [ContentType.FormData]: (input: any) =>
-      Object.keys(input || {}).reduce((formData, key) => {
+    [ContentType.FormData]: (input: any) => {
+      if (input instanceof FormData) {
+        return input;
+      }
+
+      return Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
         formData.append(
           key,
@@ -428,16 +510,17 @@ export class HttpClient<SecurityDataType = unknown> {
             ? property
             : typeof property === "object" && property !== null
               ? JSON.stringify(property)
-              : `${property}`
+              : `${property}`,
         );
         return formData;
-      }, new FormData()),
+      }, new FormData());
+    },
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
   protected mergeRequestParams(
     params1: RequestParams,
-    params2?: RequestParams
+    params2?: RequestParams,
   ): RequestParams {
     return {
       ...this.baseApiParams,
@@ -452,7 +535,7 @@ export class HttpClient<SecurityDataType = unknown> {
   }
 
   protected createAbortSignal = (
-    cancelToken: CancelToken
+    cancelToken: CancelToken,
   ): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
@@ -515,16 +598,17 @@ export class HttpClient<SecurityDataType = unknown> {
           typeof body === "undefined" || body === null
             ? null
             : payloadFormatter(body),
-      }
-    ).then(async response => {
-      const r = response.clone() as HttpResponse<T, E>;
+      },
+    ).then(async (response) => {
+      const r = response as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
 
+      const responseToParse = responseFormat ? response.clone() : response;
       const data = !responseFormat
         ? r
-        : await response[responseFormat]()
-            .then(data => {
+        : await responseToParse[responseFormat]()
+            .then((data) => {
               if (r.ok) {
                 r.data = data;
               } else {
@@ -532,7 +616,7 @@ export class HttpClient<SecurityDataType = unknown> {
               }
               return r;
             })
-            .catch(e => {
+            .catch((e) => {
               r.error = e;
               return r;
             });
@@ -550,7 +634,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title OpenAPI definition
  * @version v0
- * @baseUrl http://localhost:5000
+ * @baseUrl http://mapokapo.zapto.org:5000
  */
 export class Api<
   SecurityDataType extends unknown,
@@ -614,14 +698,14 @@ export class Api<
          * @format int64
          * @example -54
          */
-        studyProgram: number;
+        studyProgram?: number;
         /**
          * ISO week
          * @example "2024-W09"
          */
         isoWeek: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<Timetable, FsreError>({
         path: `/timetable`,

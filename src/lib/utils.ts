@@ -1,10 +1,9 @@
+import { Timetable } from "@/api/api";
 import { type ClassValue, clsx } from "clsx";
 import { addDays, format, parseISO, startOfWeek } from "date-fns";
-import { UTCDate } from "@date-fns/utc";
 import { DateRange } from "react-day-picker";
 import { twMerge } from "tailwind-merge";
 import { characterMap } from "./const";
-import { Timetable } from "@/api/api";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -14,12 +13,10 @@ export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function formatTime(
-  options: { h: number; m: number } | { utcDate: UTCDate }
-) {
+export function formatTime(options: { h: number; m: number } | { date: Date }) {
   return format(
-    "utcDate" in options
-      ? new Date(options.utcDate.toLocaleString())
+    "date" in options
+      ? options.date
       : new Date().setHours(options.h, options.m, 0, 0),
     "p"
   );
@@ -37,7 +34,7 @@ export function isoWeekToWeekStartDate(isoWeek: `${number}-W${number}`) {
   const [year, week] = isoWeek.split("-W");
   const isoDate = `${year}-W${week}-1`;
 
-  return new UTCDate(startOfWeek(parseISO(isoDate)));
+  return new Date(startOfWeek(parseISO(isoDate)));
 }
 
 export function isValidISOWeek(isoWeek: `${number}-W${number}`) {
@@ -51,16 +48,16 @@ export function isoWeekToDateRange(isoWeek: `${number}-W${number}`): DateRange {
   return { from: monday, to: sunday };
 }
 
-export function formatDate(utcDate: UTCDate) {
-  return format(new Date(utcDate), "PPP");
+export function formatDate(date: Date) {
+  return format(date, "PPP");
 }
 
-export function formatDayMonth(utcDate: UTCDate) {
-  return format(new Date(utcDate), "dd/MM");
+export function formatDayMonth(date: Date) {
+  return format(date, "dd/MM");
 }
 
-export function formatShortWeekDay(utcDate: UTCDate) {
-  return capitalize(format(new Date(utcDate), "EEE"));
+export function formatShortWeekDay(date: Date) {
+  return capitalize(format(date, "EEE"));
 }
 
 export function range(n: number) {

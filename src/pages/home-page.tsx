@@ -1,19 +1,18 @@
 import { FsreError, Timetable } from "@/api/api";
 import { client } from "@/api/client";
 import ClassCombobox from "@/components/class-combobox";
-import TimetableView from "@/components/timetable-view";
-import TimetableDatePicker from "@/components/timetable-date-picker";
-import { Skeleton } from "@/components/ui/skeleton";
-import { isoWeekToDateRange, dateToIsoWeek } from "@/lib/utils";
-import { useTimetableStudyProgramStore } from "@/store/useTimetableStudyProgramStore";
-import { useState } from "react";
 import SignUpCard from "@/components/sign-up-card";
+import TimetableDatePicker from "@/components/timetable-date-picker";
+import TimetableView from "@/components/timetable-view";
+import { Skeleton } from "@/components/ui/skeleton";
+import { dateToIsoWeek, isoWeekToDateRange } from "@/lib/utils";
+import { useTimetableStudyProgramStore } from "@/store/useTimetableStudyProgramStore";
 import { useQuery } from "@tanstack/react-query";
-import { UTCDate } from "@date-fns/utc";
+import { useState } from "react";
 
 const HomePage: React.FC = () => {
   const [isoWeek, setIsoWeek] = useState<`${number}-W${number}`>(
-    dateToIsoWeek(new UTCDate())
+    dateToIsoWeek(new Date())
   );
 
   const {

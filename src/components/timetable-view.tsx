@@ -1,3 +1,18 @@
+import type { Timetable, TimetableEvent } from "@/api/api";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import {
   cn,
   formatDate,
@@ -8,23 +23,7 @@ import {
   isoWeekToWeekStartDate,
   range,
 } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
 import { addDays } from "date-fns";
-import type { Timetable, TimetableEvent } from "@/api/api";
-import { UTCDate } from "@date-fns/utc";
 import { useMemo } from "react";
 
 type Props = {
@@ -75,23 +74,19 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
             }
           )}>
           {timetableEvents.map(timetableEvent => {
-            const startDate = new UTCDate(timetableEvent.startDate);
-            const endDate = new UTCDate(timetableEvent.endDate);
+            const startDate = new Date(timetableEvent.startDateTime);
+            const endDate = new Date(timetableEvent.endDateTime);
 
-            const startDateLocal = new Date(startDate.toLocaleString());
-            const endDateLocal = new Date(endDate.toLocaleString());
             const startIndex =
-              startDateLocal.getHours() <= 8 && startDateLocal.getMinutes() < 15
+              startDate.getHours() <= 8 && startDate.getMinutes() < 15
                 ? 1
-                : (startDateLocal.getHours() - 8) * 4 +
+                : (startDate.getHours() - 8) * 4 +
                   1 +
-                  startDateLocal.getMinutes() / 15;
+                  startDate.getMinutes() / 15;
             const endIndex =
-              endDateLocal.getHours() >= 20
+              endDate.getHours() >= 20
                 ? 49
-                : (endDateLocal.getHours() - 8) * 4 +
-                  1 +
-                  endDateLocal.getMinutes() / 15;
+                : (endDate.getHours() - 8) * 4 + 1 + endDate.getMinutes() / 15;
 
             const isSmall = endIndex - startIndex <= 6;
 
@@ -103,8 +98,8 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
               return (
                 (event.id !== timetableEvent.id ||
                   event.name !== timetableEvent.name) &&
-                new UTCDate(event.startDate).getTime() < endDate.getTime() &&
-                new UTCDate(event.endDate).getTime() > startDate.getTime()
+                new Date(event.startDateTime).getTime() < endDate.getTime() &&
+                new Date(event.endDateTime).getTime() > startDate.getTime()
               );
             });
 
@@ -113,8 +108,8 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
               return (
                 (event.id !== timetableEvent.id ||
                   event.name !== timetableEvent.name) &&
-                new UTCDate(event.startDate).getTime() < endDate.getTime() &&
-                new UTCDate(event.endDate).getTime() > startDate.getTime() &&
+                new Date(event.startDateTime).getTime() < endDate.getTime() &&
+                new Date(event.endDateTime).getTime() > startDate.getTime() &&
                 (event.id < timetableEvent.id ||
                   event.name < timetableEvent.name)
               );
@@ -125,7 +120,7 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
                 key={
                   timetableEvent.id +
                   timetableEvent.name +
-                  timetableEvent.startDate
+                  timetableEvent.startDateTime
                 }
                 style={{
                   gridRowStart: startIndex,
@@ -179,10 +174,10 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
                         </CardTitle>
                         <CardDescription className="flex flex-col">
                           <span>
-                            {formatDate(new UTCDate(timetableEvent.startDate))}
+                            {formatDate(new Date(timetableEvent.startDateTime))}
                           </span>
                           <span>
-                            {`${formatTime({ utcDate: new UTCDate(timetableEvent.startDate) })} - ${formatTime({ utcDate: new UTCDate(timetableEvent.endDate) })}`}
+                            {`${formatTime({ date: new Date(timetableEvent.startDateTime) })} - ${formatTime({ date: new Date(timetableEvent.endDateTime) })}`}
                           </span>
                         </CardDescription>
                       </CardHeader>
