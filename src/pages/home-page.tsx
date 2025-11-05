@@ -5,27 +5,20 @@ import SignUpCard from "@/components/sign-up-card";
 import TimetableDatePicker from "@/components/timetable-date-picker";
 import TimetableView from "@/components/timetable-view";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTimetableUrlState } from "@/hooks/useTimetableUrlState";
 import { dateToIsoWeek, isoWeekToDateRange } from "@/lib/utils";
-import { useTimetableStudyProgramStore } from "@/store/useTimetableStudyProgramStore";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 const HomePage: React.FC = () => {
-  const [isoWeek, setIsoWeek] = useState<`${number}-W${number}`>(
-    dateToIsoWeek(new Date())
-  );
-
   const {
-    selectedTimetableStudyProgramId,
     timetableStudyPrograms,
-    selectTimetableStudyProgram,
-  } = useTimetableStudyProgramStore();
+    selectedTimetableStudyProgramId,
+    isoWeek,
+    setSelectedProgram,
+    setIsoWeek,
+  } = useTimetableUrlState();
 
-  const {
-    data: timetable,
-    isLoading,
-    refetch,
-  } = useQuery<Timetable, FsreError>({
+  const { data: timetable, isPending } = useQuery<Timetable, FsreError>({
     queryKey: ["timetable", selectedTimetableStudyProgramId, isoWeek],
     queryFn: async () =>
       (
@@ -34,9 +27,13 @@ const HomePage: React.FC = () => {
           isoWeek,
         })
       ).data,
+    placeholderData: keepPreviousData,
   });
 
-  if (timetableStudyPrograms === null || isLoading || timetable === undefined) {
+  if (
+    timetableStudyPrograms === null ||
+    (isPending && timetable === undefined)
+  ) {
     return (
       <main className="flex h-full w-full flex-col">
         <div className="flex flex-col p-8">
@@ -77,25 +74,36 @@ const HomePage: React.FC = () => {
             timetableStudyPrograms={timetableStudyPrograms}
             selectedTimetableStudyProgramId={selectedTimetableStudyProgramId}
             onTimetableStudyProgramSelected={newTimetableStudyProgram => {
-              selectTimetableStudyProgram(newTimetableStudyProgram);
-              refetch();
+              setSelectedProgram(newTimetableStudyProgram);
             }}
           />
           <TimetableDatePicker
             range={isoWeekToDateRange(isoWeek)}
             setRange={range => {
               if (range.from === undefined) return;
-
-              setIsoWeek(dateToIsoWeek(range.from));
+              const nextIsoWeek = dateToIsoWeek(
+                range.from
+              ) as `${number}-W${number}`;
+              setIsoWeek(nextIsoWeek);
             }}
           />
         </div>
       </div>
       <div className="h-full w-full overflow-x-auto p-8 pl-0 pt-0 md:p-16 md:pl-0 md:pt-0">
-        <TimetableView
-          timetable={timetable}
-          isoWeek={isoWeek}
-        />
+        {timetable === undefined ? (
+          <div className="flex min-w-[500px] gap-4 pt-[5%]">
+            <Skeleton className="flex-1" />
+            <Skeleton className="flex-1" />
+            <Skeleton className="flex-1" />
+            <Skeleton className="flex-1" />
+            <Skeleton className="flex-1" />
+          </div>
+        ) : (
+          <TimetableView
+            timetable={timetable}
+            isoWeek={isoWeek}
+          />
+        )}
       </div>
       <div className="flex items-center justify-center">
         <SignUpCard timetableStudyPrograms={timetableStudyPrograms} />

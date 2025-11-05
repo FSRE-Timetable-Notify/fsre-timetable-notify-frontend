@@ -9,7 +9,7 @@ const Navbar: React.FC = () => {
           to="/"
           className="text-foreground">
           <img
-            src="/vite.svg"
+            src="/logo.png"
             width="40"
             height="40"
             alt="Logo"

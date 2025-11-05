@@ -1,6 +1,3 @@
-import { addDays, format, startOfWeek } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -8,6 +5,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { addDays, format, startOfWeek } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { memo } from "react";
 import { DateRange } from "react-day-picker";
 
 type Props = {
@@ -55,4 +56,4 @@ const TimetableDatePicker: React.FC<Props> = ({ range, setRange }) => {
   );
 };
 
-export default TimetableDatePicker;
+export default memo(TimetableDatePicker);
