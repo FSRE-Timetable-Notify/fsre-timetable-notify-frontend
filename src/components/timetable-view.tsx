@@ -100,23 +100,27 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
       </thead>
       <tbody className="relative">
         {showTimeLine && (
-          <Tooltip>
-            <div
-              className="absolute z-20 ml-[16.66%] w-5/6"
-              style={{ top: `${topPercent}%` }}>
-              <TooltipTrigger
-                className="group relative top-1/2 h-4 -translate-y-1/2"
-                style={{
-                  left: `${leftPercent}%`,
-                  width: `${100 / daysInTimetable}%`,
-                }}>
-                <div className="absolute inset-0 top-1/2 h-[2px] w-full -translate-y-1/2 bg-rose-500/90 group-hover:h-[4px]" />
-              </TooltipTrigger>
-            </div>
-            <TooltipContent className="border-border/40 bg-transparent bg-gradient-to-t from-background to-background/80">
-              <span>{formatTime({ date: now })}</span>
-            </TooltipContent>
-          </Tooltip>
+          <tr>
+            <td>
+              <Tooltip>
+                <div
+                  className="absolute z-20 ml-[16.66%] w-5/6"
+                  style={{ top: `${topPercent}%` }}>
+                  <TooltipTrigger
+                    className="group relative top-1/2 h-4 -translate-y-1/2"
+                    style={{
+                      left: `${leftPercent}%`,
+                      width: `${100 / daysInTimetable}%`,
+                    }}>
+                    <div className="absolute inset-0 top-1/2 h-[2px] w-full -translate-y-1/2 bg-rose-500/90 group-hover:h-[4px]" />
+                  </TooltipTrigger>
+                </div>
+                <TooltipContent className="border-border/40 bg-transparent bg-gradient-to-t from-background to-background/80">
+                  <span>{formatTime({ date: now })}</span>
+                </TooltipContent>
+              </Tooltip>
+            </td>
+          </tr>
         )}
         <tr
           className={cn(

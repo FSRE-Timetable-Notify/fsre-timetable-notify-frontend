@@ -15,7 +15,9 @@ import { routes } from "./config/routes.tsx";
 import "./index.css";
 import { handleError } from "./lib/errors.ts";
 
-const router = createBrowserRouter(routes);
+const router = createBrowserRouter(routes, {
+  basename: "/fsre-timetable-notify-frontend/",
+});
 
 setDefaultOptions({
   locale: hr,

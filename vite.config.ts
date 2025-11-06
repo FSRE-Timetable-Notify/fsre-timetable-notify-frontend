@@ -7,15 +7,10 @@ const dir = import.meta.dir;
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    port: 3001,
-  },
-  preview: {
-    port: 3000,
-  },
   resolve: {
     alias: {
       "@": path.resolve(dir, "./src"),
     },
   },
+  base: "/fsre-timetable-notify-frontend/",
 });

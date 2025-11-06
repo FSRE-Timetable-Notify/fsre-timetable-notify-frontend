@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import ThemeModeToggle from "./theme-mode-toggle";
+import logoUrl from "/logo.png";
 
 const Navbar: React.FC = () => {
   return (
@@ -9,7 +10,7 @@ const Navbar: React.FC = () => {
           to="/"
           className="text-foreground">
           <img
-            src="/logo.png"
+            src={logoUrl}
             width="40"
             height="40"
             alt="Logo"
