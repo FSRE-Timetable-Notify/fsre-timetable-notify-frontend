@@ -8,9 +8,15 @@ const dirname = import.meta.dirname;
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  preview: {
+    port: 3000,
+  },
   resolve: {
     alias: {
       "@": path.resolve(dirname, "./src"),
     },
+  },
+  server: {
+    port: 3000,
   },
 });
