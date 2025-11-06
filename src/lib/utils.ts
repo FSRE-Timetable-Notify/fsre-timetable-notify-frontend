@@ -115,7 +115,7 @@ export function isoWeekToWeekStartDate(isoWeek: `${number}-W${number}`) {
   const [year, week] = isoWeek.split("-W");
   const isoDate = `${year}-W${week}-1`;
 
-  return new Date(startOfWeek(parseISO(isoDate)));
+  return new Date(startOfWeek(parseISO(isoDate), { weekStartsOn: 1 }));
 }
 
 export function isValidISOWeek(isoWeek: `${number}-W${number}`) {
