@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://fsre-timetable-notify.github.io/fsre-timetable-notify-frontend/",
   "scripts": {
     "dev": "bunx --bun vite",
     "build": "bunx --bun tsc -b && bunx --bun vite build",

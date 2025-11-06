@@ -8,16 +8,14 @@ import { setDefaultOptions } from "date-fns";
 import { hr } from "date-fns/locale";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import { toast } from "sonner";
 import { ThemeProvider } from "./components/theme-mode-provider.tsx";
 import { routes } from "./config/routes.tsx";
 import "./index.css";
 import { handleError } from "./lib/errors.ts";
 
-const router = createBrowserRouter(routes, {
-  basename: "/fsre-timetable-notify-frontend/",
-});
+const router = createHashRouter(routes);
 
 setDefaultOptions({
   locale: hr,
