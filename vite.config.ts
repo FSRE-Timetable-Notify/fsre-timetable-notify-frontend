@@ -7,7 +7,6 @@ const dirname = import.meta.dirname;
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/fsre-timetable-notify-frontend/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
