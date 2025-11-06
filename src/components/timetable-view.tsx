@@ -1,4 +1,8 @@
+import { addDays } from "date-fns";
+import { useMemo } from "react";
+
 import type { Timetable, TimetableEvent } from "@/api/api";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,15 +34,13 @@ import {
   isoWeekToWeekStartDate,
   range,
 } from "@/lib/utils";
-import { addDays } from "date-fns";
-import { useMemo } from "react";
 
-type Props = {
-  timetable: Timetable;
+interface Props {
   isoWeek: `${number}-W${number}`;
-};
+  timetable: Timetable;
+}
 
-const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
+const TimetableView: React.FC<Props> = ({ isoWeek, timetable }) => {
   const timetableEvents = (Object.values(timetable) as TimetableEvent[]).flat();
 
   const daysInTimetable = useMemo(
@@ -47,8 +49,8 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
   );
 
   const weekDays = range(daysInTimetable).map(i => ({
-    label: formatShortWeekDay(addDays(isoWeekToWeekStartDate(isoWeek), i)),
     date: formatDayMonth(addDays(isoWeekToWeekStartDate(isoWeek), i)),
+    label: formatShortWeekDay(addDays(isoWeekToWeekStartDate(isoWeek), i)),
   }));
 
   const now = useNow();
@@ -87,10 +89,10 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
           {weekDays.map(day => {
             return (
               <th
-                key={day.label}
-                className="pb-8">
+                className="pb-8"
+                key={day.label}>
                 <p>{day.label}</p>
-                <p className="text-sm font-normal text-muted-foreground">
+                <p className="text-muted-foreground text-sm font-normal">
                   {day.date}
                 </p>
               </th>
@@ -105,17 +107,17 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
               <Tooltip>
                 <div
                   className="absolute z-20 ml-[16.66%] w-5/6"
-                  style={{ top: `${topPercent}%` }}>
+                  style={{ top: `${topPercent.toString()}%` }}>
                   <TooltipTrigger
                     className="group relative top-1/2 h-4 -translate-y-1/2"
                     style={{
-                      left: `${leftPercent}%`,
-                      width: `${100 / daysInTimetable}%`,
+                      left: `${leftPercent.toString()}%`,
+                      width: `${(100 / daysInTimetable).toString()}%`,
                     }}>
-                    <div className="absolute inset-0 top-1/2 h-[2px] w-full -translate-y-1/2 bg-rose-500/90 group-hover:h-[4px]" />
+                    <div className="absolute inset-0 top-1/2 h-0.5 w-full -translate-y-1/2 bg-rose-500/90 group-hover:h-1" />
                   </TooltipTrigger>
                 </div>
-                <TooltipContent className="border-border/40 bg-transparent bg-gradient-to-t from-background to-background/80">
+                <TooltipContent className="border-border/40 from-background to-background/80 bg-transparent bg-linear-to-t">
                   <span>{formatTime({ date: now })}</span>
                 </TooltipContent>
               </Tooltip>
@@ -123,14 +125,11 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
           </tr>
         )}
         <tr
-          className={cn(
-            "absolute ml-[16.66%] grid h-full w-5/6 grid-rows-[repeat(48,minmax(0,1fr))]",
-            {
-              "grid-cols-7": daysInTimetable === 7,
-              "grid-cols-6": daysInTimetable === 6,
-              "grid-cols-5": daysInTimetable === 5,
-            }
-          )}>
+          className={cn("absolute ml-[16.66%] grid h-full w-5/6 grid-rows-48", {
+            "grid-cols-5": daysInTimetable === 5,
+            "grid-cols-6": daysInTimetable === 6,
+            "grid-cols-7": daysInTimetable === 7,
+          })}>
           {timetableEvents.map(timetableEvent => {
             const startDate = new Date(timetableEvent.startDateTime);
             const endDate = new Date(timetableEvent.endDateTime);
@@ -175,28 +174,28 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
 
             return (
               <td
-                key={
-                  timetableEvent.id +
-                  timetableEvent.name +
-                  timetableEvent.startDateTime
-                }
-                style={{
-                  gridRowStart: startIndex,
-                  gridRowEnd: endIndex,
-                  gridColumn: startDate.getDay(),
-                }}
                 className={cn(
                   "m-px rounded-md",
                   isOverlappedWithAnotherEvent
                     ? "w-[calc(50%-2px)]"
                     : "w-unset",
                   isSecondEventInOverlapCase ? "ml-auto" : ""
-                )}>
+                )}
+                key={
+                  timetableEvent.id.toString() +
+                  timetableEvent.name +
+                  timetableEvent.startDateTime
+                }
+                style={{
+                  gridColumn: startDate.getDay(),
+                  gridRowEnd: endIndex,
+                  gridRowStart: startIndex,
+                }}>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       className={cn(
-                        "flex h-full justify-between bg-primary/90 p-1 text-primary-foreground hover:bg-primary/80",
+                        "bg-primary/90 text-primary-foreground hover:bg-primary/80 flex h-full justify-between p-1",
                         isSmall ? "flex-row-reverse" : "flex-col",
                         "w-full"
                       )}
@@ -210,7 +209,7 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
                       </span>
                       <h3
                         className={cn(
-                          "w-full whitespace-normal px-2 font-bold",
+                          "w-full px-2 font-bold whitespace-normal",
                           isSmall
                             ? "line-clamp-1 text-base"
                             : "line-clamp-3 text-lg"
@@ -225,9 +224,9 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent asChild>
-                    <Card className="min-w-min border-border/40 bg-transparent bg-gradient-to-t from-background to-background/80 p-0">
+                    <Card className="border-border/40 from-background to-background/80 min-w-min bg-transparent bg-linear-to-t p-0">
                       <CardHeader className="pb-0">
-                        <CardTitle className="whitespace-nowrap text-xl">
+                        <CardTitle className="text-xl whitespace-nowrap">
                           {timetableEvent.name}
                         </CardTitle>
                         <CardDescription className="flex flex-col">
@@ -267,7 +266,7 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
             </th>
             {range(daysInTimetable).map(m => (
               <td
-                className="border border-border"
+                className="border-border border"
                 key={m}></td>
             ))}
           </tr>

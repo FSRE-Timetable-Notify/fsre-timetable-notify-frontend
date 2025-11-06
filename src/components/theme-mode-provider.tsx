@@ -1,21 +1,21 @@
-import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type Theme = "dark" | "light" | "system";
 
-type ThemeProviderProps = {
+interface ThemeProviderProps {
   children: React.ReactNode;
   defaultTheme?: Theme;
   storageKey?: string;
-};
+}
 
-type ThemeProviderState = {
-  theme: Theme;
+interface ThemeProviderState {
   setTheme: (theme: Theme) => void;
-};
+  theme: Theme;
+}
 
 const initialState: ThemeProviderState = {
-  theme: "system",
   setTheme: () => null,
+  theme: "system",
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
@@ -27,7 +27,7 @@ export function ThemeProvider({
   ...props
 }: Readonly<ThemeProviderProps>) {
   const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+    () => (localStorage.getItem(storageKey) as null | Theme) ?? defaultTheme
   );
 
   useEffect(() => {
@@ -50,11 +50,11 @@ export function ThemeProvider({
 
   const value = useMemo(
     () => ({
-      theme,
       setTheme: (theme: Theme) => {
         localStorage.setItem(storageKey, theme);
         setTheme(theme);
       },
+      theme,
     }),
     [theme, storageKey, setTheme]
   );
@@ -69,7 +69,9 @@ export function ThemeProvider({
 }
 
 export const useTheme = () => {
-  const context = useContext(ThemeProviderContext);
+  const context = useContext(ThemeProviderContext) as
+    | ThemeProviderState
+    | undefined;
 
   if (context === undefined)
     throw new Error("useTheme must be used within a ThemeProvider");

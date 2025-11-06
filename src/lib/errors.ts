@@ -1,5 +1,6 @@
-import mapErrorToMessage from "./mapError";
 import { toast } from "sonner";
+
+import mapErrorToMessage from "./mapError";
 
 export const handleError = (
   error: unknown,
@@ -11,21 +12,21 @@ export const handleError = (
   const description = Array.isArray(message) ? message[1] : message;
 
   const id = toast.error(title, {
-    description,
-    cancel: {
-      label: "Dismiss",
-      onClick: () => {
-        toast.dismiss(id);
-      },
-    },
     action:
       refetch === undefined
         ? undefined
         : {
             label: "Retry",
             onClick: () => {
-              refetch();
+              void refetch();
             },
           },
+    cancel: {
+      label: "Dismiss",
+      onClick: () => {
+        toast.dismiss(id);
+      },
+    },
+    description,
   });
 };

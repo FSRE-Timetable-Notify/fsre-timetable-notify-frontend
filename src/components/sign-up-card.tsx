@@ -1,13 +1,19 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import z from "zod";
+
+import type { FsreError, HttpResponse, MessagingSubscription } from "@/api/api";
+
+import { client } from "@/api/client";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -17,39 +23,36 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { FsreError, HttpResponse, MessagingSubscription } from "@/api/api";
-import { client } from "@/api/client";
-import { useMutation } from "@tanstack/react-query";
-import ClassCombobox from "./class-combobox";
-import { toast } from "sonner";
 import { handleError } from "@/lib/errors";
 
+import ClassCombobox from "./class-combobox";
+
 const formSchema = z.object({
-  studyProgramId: z.number().int(),
   email: z.string().email("Invalid email address"),
+  studyProgramId: z.number().int(),
 });
 
-type Props = {
+interface Props {
   timetableStudyPrograms: Record<number, string>;
-};
+}
 
 const SignUpCard: React.FC<Props> = ({ timetableStudyPrograms }) => {
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
     defaultValues: {
-      studyProgramId: -55,
       email: "",
+      studyProgramId: -55,
     },
+    resolver: zodResolver(formSchema),
   });
   const { isPending, mutateAsync } = useMutation<
     MessagingSubscription,
     HttpResponse<never, FsreError>,
     z.infer<typeof formSchema>
   >({
-    mutationKey: ["subscribe"],
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       return (await client.messaging.subscribe(data)).data;
     },
+    mutationKey: ["subscribe"],
     onError: ({ error }) => {
       handleError(error);
     },
@@ -66,7 +69,7 @@ const SignUpCard: React.FC<Props> = ({ timetableStudyPrograms }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={void form.handleSubmit(onSubmit)}>
         <Card className="border-border">
           <CardHeader>
             <h2 className="text-xl font-bold">
@@ -98,9 +101,9 @@ const SignUpCard: React.FC<Props> = ({ timetableStudyPrograms }) => {
                 <FormItem>
                   <FormLabel className="ml-1">Class</FormLabel>
                   <ClassCombobox
-                    timetableStudyPrograms={timetableStudyPrograms}
-                    selectedTimetableStudyProgramId={field.value}
                     onTimetableStudyProgramSelected={field.onChange}
+                    selectedTimetableStudyProgramId={field.value}
+                    timetableStudyPrograms={timetableStudyPrograms}
                   />
                   <FormMessage />
                 </FormItem>

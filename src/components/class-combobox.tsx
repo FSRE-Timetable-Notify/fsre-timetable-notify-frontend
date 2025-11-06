@@ -1,6 +1,6 @@
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
 
-import { cn, smartSearch } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -15,48 +15,48 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
+import { cn, smartSearch } from "@/lib/utils";
 
-type Props = {
-  timetableStudyPrograms: Record<number, string> | null;
-  selectedTimetableStudyProgramId: number;
+interface Props {
   onTimetableStudyProgramSelected?: (timetableStudyProgramId: number) => void;
-};
+  selectedTimetableStudyProgramId: number;
+  timetableStudyPrograms: null | Record<number, string>;
+}
 
 const ClassCombobox: React.FC<Props> = ({
-  timetableStudyPrograms,
-  selectedTimetableStudyProgramId,
   onTimetableStudyProgramSelected,
+  selectedTimetableStudyProgramId,
+  timetableStudyPrograms,
 }) => {
   const timetableStudyProgramItems =
     timetableStudyPrograms === null
       ? null
       : Object.entries(timetableStudyPrograms).map(([id, name]) => ({
-          value: parseInt(id, 10),
           label: name,
+          value: parseInt(id, 10),
         }));
 
   const [open, setOpen] = useState(false);
 
   return (
     <Popover
-      open={open}
-      onOpenChange={setOpen}>
+      onOpenChange={setOpen}
+      open={open}>
       <div className="flex items-center justify-center gap-4">
         <PopoverTrigger asChild>
           <Button
-            id="study-program"
-            variant="outline"
             aria-expanded={open}
+            className="justify-between"
             disabled={timetableStudyProgramItems === null}
-            className="justify-between">
+            id="study-program"
+            variant="outline">
             {timetableStudyProgramItems === null
               ? "Loading..."
-              : timetableStudyProgramItems.find(
+              : (timetableStudyProgramItems.find(
                   timetableStudyProgramItem =>
                     timetableStudyProgramItem.value ===
                     selectedTimetableStudyProgramId
-                )!.label}
+                )?.label ?? "Select study program")}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -71,7 +71,6 @@ const ClassCombobox: React.FC<Props> = ({
                 {timetableStudyProgramItems.map(timetableStudyProgramItem => (
                   <CommandItem
                     key={timetableStudyProgramItem.value}
-                    value={timetableStudyProgramItem.label}
                     onSelect={currentValue => {
                       const value = timetableStudyProgramItems.find(
                         timetableStudyProgramItem =>
@@ -84,7 +83,8 @@ const ClassCombobox: React.FC<Props> = ({
                         value ?? selectedTimetableStudyProgramId
                       );
                       setOpen(false);
-                    }}>
+                    }}
+                    value={timetableStudyProgramItem.label}>
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",

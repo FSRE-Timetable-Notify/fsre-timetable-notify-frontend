@@ -1,8 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-export type TimetableStudyProgramStore = {
-  timetableStudyPrograms: Record<number, string> | null;
+export interface TimetableStudyProgramStore {
   selectedTimetableStudyProgramId: number;
   selectTimetableStudyProgram: (
     selectedTimetableStudyProgramId: number
@@ -10,17 +9,18 @@ export type TimetableStudyProgramStore = {
   setTimetableStudyPrograms: (
     timetableStudyPrograms: Record<number, string>
   ) => void;
-};
+  timetableStudyPrograms: null | Record<number, string>;
+}
 
 export const useTimetableStudyProgramStore = create(
   persist<TimetableStudyProgramStore>(
     set => ({
-      timetableStudyPrograms: null,
       selectedTimetableStudyProgramId: -55,
       selectTimetableStudyProgram: selectedTimetableStudyProgramId =>
-        set({ selectedTimetableStudyProgramId }),
+        { set({ selectedTimetableStudyProgramId }); },
       setTimetableStudyPrograms: timetableStudyPrograms =>
-        set({ timetableStudyPrograms }),
+        { set({ timetableStudyPrograms }); },
+      timetableStudyPrograms: null,
     }),
     {
       name: "timetableStudyPrograms",

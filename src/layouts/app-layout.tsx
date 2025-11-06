@@ -1,26 +1,27 @@
-import { FsreError, TimetableDatabase } from "@/api/api";
+import { useQuery } from "@tanstack/react-query";
+import { type PropsWithChildren, useEffect } from "react";
+import { toast } from "sonner";
+
+import type { FsreError, TimetableDatabase } from "@/api/api";
+
 import { client } from "@/api/client";
 import Navbar from "@/components/navbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTimetableStudyProgramStore } from "@/store/useTimetableStudyProgramStore";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
-import { toast } from "sonner";
 
-const AppLayout: React.FC = () => {
+const AppLayout: React.FC<PropsWithChildren> = ({ children }) => {
   const setTimetableStudyPrograms = useTimetableStudyProgramStore(
     state => state.setTimetableStudyPrograms
   );
 
   const { data, isLoading } = useQuery<TimetableDatabase, FsreError>({
-    queryKey: ["timetable-database"],
     queryFn: async () =>
       (await client.timetableDatabase.getTimetableDatabase()).data,
+    queryKey: ["timetable-database"],
   });
 
   useEffect(() => {
-    if (!isLoading && data !== null && data !== undefined) {
+    if (!isLoading && data !== undefined) {
       toast.dismiss();
 
       const newTimetableStudyPrograms: Record<number, string> = {};
@@ -45,7 +46,7 @@ const AppLayout: React.FC = () => {
             <Skeleton className="flex-1" />
             <Skeleton className="flex-1" />
           </div>
-          <div className="flex flex-[5] gap-4 pt-[5%]">
+          <div className="flex flex-5 gap-4 pt-[5%]">
             <Skeleton className="flex-1" />
             <Skeleton className="flex-1" />
             <Skeleton className="flex-1" />
@@ -60,7 +61,7 @@ const AppLayout: React.FC = () => {
   return (
     <div className="flex h-full w-full flex-col">
       <Navbar />
-      <Outlet />
+      {children}
     </div>
   );
 };

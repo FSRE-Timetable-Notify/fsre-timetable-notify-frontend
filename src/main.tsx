@@ -1,4 +1,3 @@
-import { TooltipProvider } from "@/components/ui/tooltip.tsx";
 import {
   QueryCache,
   QueryClient,
@@ -8,14 +7,15 @@ import { setDefaultOptions } from "date-fns";
 import { hr } from "date-fns/locale";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createHashRouter, RouterProvider } from "react-router-dom";
 import { toast } from "sonner";
+
+import { TooltipProvider } from "@/components/ui/tooltip.tsx";
+import AppLayout from "@/layouts/app-layout.tsx";
+import HomePage from "@/pages/home-page.tsx";
+
 import { ThemeProvider } from "./components/theme-mode-provider.tsx";
-import { routes } from "./config/routes.tsx";
 import "./index.css";
 import { handleError } from "./lib/errors.ts";
-
-const router = createHashRouter(routes);
 
 setDefaultOptions({
   locale: hr,
@@ -33,14 +33,21 @@ const queryClient = new QueryClient({
   }),
 });
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Failed to find the root element");
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
         defaultTheme="system"
         storageKey="vite-ui-theme">
         <TooltipProvider>
-          <RouterProvider router={router} />
+          <AppLayout>
+            <HomePage />
+          </AppLayout>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

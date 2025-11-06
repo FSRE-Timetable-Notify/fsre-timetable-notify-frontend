@@ -1,4 +1,7 @@
-import { FsreError, Timetable } from "@/api/api";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+
+import type { FsreError, Timetable } from "@/api/api";
+
 import { client } from "@/api/client";
 import ClassCombobox from "@/components/class-combobox";
 import SignUpCard from "@/components/sign-up-card";
@@ -7,33 +10,29 @@ import TimetableView from "@/components/timetable-view";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTimetableUrlState } from "@/hooks/useTimetableUrlState";
 import { dateToIsoWeek, isoWeekToDateRange } from "@/lib/utils";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 const HomePage: React.FC = () => {
   const {
-    timetableStudyPrograms,
-    selectedTimetableStudyProgramId,
     isoWeek,
-    setSelectedProgram,
+    selectedTimetableStudyProgramId,
     setIsoWeek,
+    setSelectedProgram,
+    timetableStudyPrograms,
   } = useTimetableUrlState();
 
   const { data: timetable, isPending } = useQuery<Timetable, FsreError>({
-    queryKey: ["timetable", selectedTimetableStudyProgramId, isoWeek],
+    placeholderData: keepPreviousData,
     queryFn: async () =>
       (
         await client.timetable.getTimetable({
-          studyProgram: selectedTimetableStudyProgramId,
           isoWeek,
+          studyProgram: selectedTimetableStudyProgramId,
         })
       ).data,
-    placeholderData: keepPreviousData,
+    queryKey: ["timetable", selectedTimetableStudyProgramId, isoWeek],
   });
 
-  if (
-    timetableStudyPrograms === null ||
-    (isPending && timetable === undefined)
-  ) {
+  if (timetableStudyPrograms === null || isPending) {
     return (
       <main className="flex h-full w-full flex-col">
         <div className="flex flex-col p-8">
@@ -53,7 +52,7 @@ const HomePage: React.FC = () => {
             <Skeleton className="flex-1" />
             <Skeleton className="flex-1" />
           </div>
-          <div className="flex min-w-[500px] flex-[5] gap-4 pt-[5%]">
+          <div className="flex min-w-[500px] flex-5 gap-4 pt-[5%]">
             <Skeleton className="flex-1" />
             <Skeleton className="flex-1" />
             <Skeleton className="flex-1" />
@@ -71,25 +70,23 @@ const HomePage: React.FC = () => {
         <h1 className="mb-16 text-center text-2xl font-bold">FSRE Timetable</h1>
         <div className="mb-8 flex flex-col justify-between gap-2 md:flex-row">
           <ClassCombobox
-            timetableStudyPrograms={timetableStudyPrograms}
-            selectedTimetableStudyProgramId={selectedTimetableStudyProgramId}
             onTimetableStudyProgramSelected={newTimetableStudyProgram => {
               setSelectedProgram(newTimetableStudyProgram);
             }}
+            selectedTimetableStudyProgramId={selectedTimetableStudyProgramId}
+            timetableStudyPrograms={timetableStudyPrograms}
           />
           <TimetableDatePicker
             range={isoWeekToDateRange(isoWeek)}
             setRange={range => {
               if (range.from === undefined) return;
-              const nextIsoWeek = dateToIsoWeek(
-                range.from
-              ) as `${number}-W${number}`;
+              const nextIsoWeek = dateToIsoWeek(range.from);
               setIsoWeek(nextIsoWeek);
             }}
           />
         </div>
       </div>
-      <div className="h-full w-full overflow-x-auto p-8 pl-0 pt-0 md:p-16 md:pl-0 md:pt-0">
+      <div className="h-full w-full overflow-x-auto p-8 pt-0 pl-0 md:p-16 md:pt-0 md:pl-0">
         {timetable === undefined ? (
           <div className="flex min-w-[500px] gap-4 pt-[5%]">
             <Skeleton className="flex-1" />
@@ -100,8 +97,8 @@ const HomePage: React.FC = () => {
           </div>
         ) : (
           <TimetableView
-            timetable={timetable}
             isoWeek={isoWeek}
+            timetable={timetable}
           />
         )}
       </div>

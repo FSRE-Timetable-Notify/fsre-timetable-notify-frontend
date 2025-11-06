@@ -1,7 +1,8 @@
+import { useEffect, useMemo, useState } from "react";
+
+import { useQueryParams } from "@/hooks/useQueryParams";
 import { dateToIsoWeek } from "@/lib/utils";
 import { useTimetableStudyProgramStore } from "@/store/useTimetableStudyProgramStore";
-import { useEffect, useMemo, useState } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
 
 type IsoWeek = `${number}-W${number}`;
 
@@ -10,28 +11,25 @@ const ISO_WEEK_REGEX = /^\d{4}-W\d{1,2}$/;
 export function useTimetableUrlState() {
   const {
     selectedTimetableStudyProgramId,
-    timetableStudyPrograms,
     selectTimetableStudyProgram,
+    timetableStudyPrograms,
   } = useTimetableStudyProgramStore();
 
-  const [isoWeek, setIsoWeek] = useState<IsoWeek>(dateToIsoWeek(new Date()));
+  const { getParam, searchParams, setParam, setSearchParams } =
+    useQueryParams();
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const location = useLocation();
-  const selectedTimetableStudyProgramIdParam = searchParams.get(
-    "selectedTimetableStudyProgramId"
+  const selectedTimetableStudyProgramIdParam = useMemo(
+    () => getParam("selectedTimetableStudyProgramId"),
+    [getParam]
   );
-  const isoWeekParam = searchParams.get("isoWeek");
 
-  useEffect(() => {
-    if (
-      isoWeekParam &&
-      ISO_WEEK_REGEX.test(isoWeekParam) &&
-      isoWeekParam !== isoWeek
-    ) {
-      setIsoWeek(isoWeekParam as IsoWeek);
-    }
-  }, [isoWeekParam, isoWeek]);
+  const isoWeekParam = useMemo(() => getParam("isoWeek"), [getParam]);
+
+  const [isoWeek, setIsoWeek] = useState<IsoWeek>(() => {
+    return isoWeekParam && ISO_WEEK_REGEX.test(isoWeekParam)
+      ? (isoWeekParam as IsoWeek)
+      : dateToIsoWeek(new Date());
+  });
 
   const effectiveSelectedTimetableStudyProgramId = useMemo(() => {
     const parsed = selectedTimetableStudyProgramIdParam
@@ -46,7 +44,7 @@ export function useTimetableUrlState() {
       : isoWeek;
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(searchParams);
     let changed = false;
 
     if (!params.get("selectedTimetableStudyProgramId")) {
@@ -64,36 +62,27 @@ export function useTimetableUrlState() {
     }
 
     if (changed) setSearchParams(params, { replace: true });
-  }, [
-    selectedTimetableStudyProgramId,
-    isoWeek,
-    location.search,
-    setSearchParams,
-  ]);
+  }, [selectedTimetableStudyProgramId, isoWeek, searchParams, setSearchParams]);
 
   const setSelectedProgramAndUrl = (id: number) => {
     selectTimetableStudyProgram(id);
 
-    const params = new URLSearchParams(searchParams);
-    params.set("selectedTimetableStudyProgramId", String(id));
-
-    setSearchParams(params);
+    setParam("selectedTimetableStudyProgramId", String(id));
   };
 
   const setIsoWeekAndUrl = (next: IsoWeek) => {
     setIsoWeek(next);
 
-    const params = new URLSearchParams(searchParams);
-    params.set("isoWeek", next);
-
-    setSearchParams(params);
+    setParam("isoWeek", next);
   };
 
   return {
-    timetableStudyPrograms,
-    selectedTimetableStudyProgramId: effectiveSelectedTimetableStudyProgramId,
     isoWeek: effectiveIsoWeek,
-    setSelectedProgram: setSelectedProgramAndUrl,
+    selectedTimetableStudyProgramId: effectiveSelectedTimetableStudyProgramId,
     setIsoWeek: setIsoWeekAndUrl,
+    setIsoWeekAndUrl,
+    setSelectedProgram: setSelectedProgramAndUrl,
+    setSelectedProgramAndUrl,
+    timetableStudyPrograms,
   } as const;
 }

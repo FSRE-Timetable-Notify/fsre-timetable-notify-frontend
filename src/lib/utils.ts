@@ -1,51 +1,23 @@
-import { Timetable } from "@/api/api";
+import type { DateRange } from "react-day-picker";
+
 import { type ClassValue, clsx } from "clsx";
 import { addDays, format, parseISO, startOfWeek } from "date-fns";
-import { DateRange } from "react-day-picker";
 import { twMerge } from "tailwind-merge";
-import { characterMap } from "./const";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import type { Timetable } from "@/api/api";
+
+import { characterMap } from "./const";
 
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function formatTime(options: { h: number; m: number } | { date: Date }) {
-  return format(
-    "date" in options
-      ? options.date
-      : new Date().setHours(options.h, options.m, 0, 0),
-    "p"
-  );
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
 
 export function dateToIsoWeek(date: Date): `${number}-W${number}` {
   return format(date, "yyyy-'W'II") as `${number}-W${number}`;
-}
-
-export function isoWeekToWeekStartDate(isoWeek: `${number}-W${number}`) {
-  if (!isValidISOWeek(isoWeek)) {
-    throw new Error("Invalid ISO 8601 week");
-  }
-
-  const [year, week] = isoWeek.split("-W");
-  const isoDate = `${year}-W${week}-1`;
-
-  return new Date(startOfWeek(parseISO(isoDate)));
-}
-
-export function isValidISOWeek(isoWeek: `${number}-W${number}`) {
-  return /^(\d{4})-W(\d{2})$/.test(isoWeek);
-}
-
-export function isoWeekToDateRange(isoWeek: `${number}-W${number}`): DateRange {
-  const monday = new Date(isoWeekToWeekStartDate(isoWeek));
-  const sunday = addDays(monday, 6);
-
-  return { from: monday, to: sunday };
 }
 
 export function formatDate(date: Date) {
@@ -60,40 +32,33 @@ export function formatShortWeekDay(date: Date) {
   return capitalize(format(date, "EEE"));
 }
 
-export function range(n: number) {
-  return [...Array(n).keys()];
+export function formatTime(options: { date: Date } | { h: number; m: number }) {
+  return format(
+    "date" in options
+      ? options.date
+      : new Date().setHours(options.h, options.m, 0, 0),
+    "p"
+  );
 }
 
-export function latinize(str: string) {
-  return str.replace(/[^A-Za-z0-9]/g, function (x) {
-    return characterMap[x] ?? x;
-  });
-}
+/**
+ * Get the number of non-empty days in a timetable. The minimum (standard) amount is 5 workdays per week (Mon - Fri), but sometimes classes are also held on Saturdays or Sundays.
+ *
+ * @param timetable The timetable to count the days from
+ * @returns The number of days in the timetable (5-7)
+ */
+export function getDaysInTimetable(timetable: Timetable) {
+  const days = (
+    Object.entries(timetable) as [
+      keyof Timetable,
+      Timetable[keyof Timetable][],
+    ][]
+  ).filter(
+    ([weekDay, classes]) =>
+      (weekDay !== "saturday" && weekDay !== "sunday") || classes.length > 0
+  ).length;
 
-export function smartSearch(value: string, search: string): number {
-  const normalizedItem = latinize(value).toLowerCase();
-  const normalizedSearch = latinize(search).toLowerCase();
-
-  if (normalizedSearch.length === 0) {
-    return 1;
-  }
-
-  if (normalizedItem === normalizedSearch) {
-    return 1;
-  }
-
-  if (normalizedItem.startsWith(normalizedSearch)) {
-    return 0.9;
-  }
-
-  if (normalizedItem.includes(normalizedSearch)) {
-    return 0.7;
-  }
-
-  // Handle partial match by calculating similarity score
-  const similarityScore = getSimilarityScore(normalizedItem, normalizedSearch);
-
-  return similarityScore;
+  return Math.max(5, Math.min(7, days));
 }
 
 export function getSimilarityScore(str1: string, str2: string): number {
@@ -135,17 +100,60 @@ export function getSimilarityScore(str1: string, str2: string): number {
   return Math.max(0, Math.min(0.6, score));
 }
 
-/**
- * Get the number of non-empty days in a timetable. The minimum (standard) amount is 5 workdays per week (Mon - Fri), but sometimes classes are also held on Saturdays or Sundays.
- *
- * @param timetable The timetable to count the days from
- * @returns The number of days in the timetable (5-7)
- */
-export function getDaysInTimetable(timetable: Timetable) {
-  const days = Object.entries(timetable).filter(
-    ([weekDay, classes]) =>
-      (weekDay !== "saturday" && weekDay !== "sunday") || classes.length > 0
-  ).length;
+export function isoWeekToDateRange(isoWeek: `${number}-W${number}`): DateRange {
+  const monday = new Date(isoWeekToWeekStartDate(isoWeek));
+  const sunday = addDays(monday, 6);
 
-  return Math.max(5, Math.min(7, days));
+  return { from: monday, to: sunday };
+}
+
+export function isoWeekToWeekStartDate(isoWeek: `${number}-W${number}`) {
+  if (!isValidISOWeek(isoWeek)) {
+    throw new Error("Invalid ISO 8601 week");
+  }
+
+  const [year, week] = isoWeek.split("-W");
+  const isoDate = `${year}-W${week}-1`;
+
+  return new Date(startOfWeek(parseISO(isoDate)));
+}
+
+export function isValidISOWeek(isoWeek: `${number}-W${number}`) {
+  return /^(\d{4})-W(\d{2})$/.test(isoWeek);
+}
+
+export function latinize(str: string) {
+  return str.replace(/[^A-Za-z0-9]/g, function (x) {
+    return characterMap[x] ?? x;
+  });
+}
+
+export function range(n: number) {
+  return [...Array(n).keys()];
+}
+
+export function smartSearch(value: string, search: string): number {
+  const normalizedItem = latinize(value).toLowerCase();
+  const normalizedSearch = latinize(search).toLowerCase();
+
+  if (normalizedSearch.length === 0) {
+    return 1;
+  }
+
+  if (normalizedItem === normalizedSearch) {
+    return 1;
+  }
+
+  if (normalizedItem.startsWith(normalizedSearch)) {
+    return 0.9;
+  }
+
+  if (normalizedItem.includes(normalizedSearch)) {
+    return 0.7;
+  }
+
+  // Handle partial match by calculating similarity score
+  const similarityScore = getSimilarityScore(normalizedItem, normalizedSearch);
+
+  return similarityScore;
 }
