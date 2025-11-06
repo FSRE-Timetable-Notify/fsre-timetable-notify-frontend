@@ -69,7 +69,8 @@ const SignUpCard: React.FC<Props> = ({ timetableStudyPrograms }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={void form.handleSubmit(onSubmit)}>
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card className="border-border">
           <CardHeader>
             <h2 className="text-xl font-bold">
