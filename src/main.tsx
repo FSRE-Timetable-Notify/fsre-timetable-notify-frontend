@@ -1,18 +1,19 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { TooltipProvider } from "@/components/ui/tooltip.tsx";
 import {
   QueryCache,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { routes } from "./config/routes.tsx";
-import { ThemeProvider } from "./components/theme-mode-provider.tsx";
 import { setDefaultOptions } from "date-fns";
 import { hr } from "date-fns/locale";
-import { handleError } from "./lib/errors.ts";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { toast } from "sonner";
+import { ThemeProvider } from "./components/theme-mode-provider.tsx";
+import { routes } from "./config/routes.tsx";
+import "./index.css";
+import { handleError } from "./lib/errors.ts";
 
 const router = createBrowserRouter(routes);
 
@@ -38,7 +39,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <ThemeProvider
         defaultTheme="system"
         storageKey="vite-ui-theme">
-        <RouterProvider router={router} />
+        <TooltipProvider>
+          <RouterProvider router={router} />
+        </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>

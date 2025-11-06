@@ -14,7 +14,14 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useNow } from "@/hooks/useNow";
+import {
   cn,
+  dateToIsoWeek,
   formatDate,
   formatDayMonth,
   formatShortWeekDay,
@@ -44,6 +51,34 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
     date: formatDayMonth(addDays(isoWeekToWeekStartDate(isoWeek), i)),
   }));
 
+  const now = useNow();
+
+  // distance of the "now line" from the top of the timetable in percent
+  // must be clamped between 0% (08:00) and 100% (20:00)
+  const topPercent = useMemo(() => {
+    const minutes =
+      now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+    const min = 8 * 60;
+    const max = 20 * 60;
+    const clamped = Math.min(Math.max(minutes, min), max);
+    return ((clamped - min) / (max - min)) * 100;
+  }, [now]);
+
+  // don't show "now line" if not in the current week
+  const showTimeLine = useMemo(() => {
+    const isCurrentWeek = dateToIsoWeek(now) === isoWeek;
+    return isCurrentWeek;
+  }, [now, isoWeek]);
+
+  const leftPercent = useMemo(() => {
+    const zeroBasedIndex = Math.min(
+      Math.max(now.getDay() - 1, 0),
+      daysInTimetable - 1
+    );
+    const width = daysInTimetable > 0 ? 100 / daysInTimetable : 0;
+    return zeroBasedIndex * width;
+  }, [now, daysInTimetable]);
+
   return (
     <table className="w-full min-w-[500px] table-fixed">
       <thead>
@@ -64,6 +99,25 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
         </tr>
       </thead>
       <tbody className="relative">
+        {showTimeLine && (
+          <Tooltip>
+            <div
+              className="absolute z-20 ml-[16.66%] w-5/6"
+              style={{ top: `${topPercent}%` }}>
+              <TooltipTrigger
+                className="group relative top-1/2 h-4 -translate-y-1/2"
+                style={{
+                  left: `${leftPercent}%`,
+                  width: `${100 / daysInTimetable}%`,
+                }}>
+                <div className="absolute inset-0 top-1/2 h-[2px] w-full -translate-y-1/2 bg-rose-500/90 group-hover:h-[4px]" />
+              </TooltipTrigger>
+            </div>
+            <TooltipContent className="border-border/40 bg-transparent bg-gradient-to-t from-background to-background/80">
+              <span>{formatTime({ date: now })}</span>
+            </TooltipContent>
+          </Tooltip>
+        )}
         <tr
           className={cn(
             "absolute ml-[16.66%] grid h-full w-5/6 grid-rows-[repeat(48,minmax(0,1fr))]",
@@ -209,7 +263,7 @@ const TimetableView: React.FC<Props> = ({ timetable, isoWeek }) => {
             </th>
             {range(daysInTimetable).map(m => (
               <td
-                className="border border-border/40"
+                className="border border-border"
                 key={m}></td>
             ))}
           </tr>
