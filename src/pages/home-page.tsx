@@ -104,8 +104,11 @@ const HomePage: React.FC = () => {
           />
         )}
       </div>
-      <div className="flex items-center justify-center">
-        <SignUpCard timetableStudyPrograms={timetableStudyPrograms} />
+      <div className="my-8 flex items-center justify-center">
+        <SignUpCard
+          selectedTimetableStudyProgramId={selectedTimetableStudyProgramId}
+          timetableStudyPrograms={timetableStudyPrograms}
+        />
       </div>
     </main>
   );

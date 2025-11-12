@@ -1,5 +1,5 @@
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +15,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn, smartSearch } from "@/lib/utils";
+import { smartSearch } from "@/lib/smartSearch";
+import { cn } from "@/lib/utils";
 
 interface Props {
   onTimetableStudyProgramSelected?: (timetableStudyProgramId: number) => void;
@@ -37,6 +38,13 @@ const ClassCombobox: React.FC<Props> = ({
         }));
 
   const [open, setOpen] = useState(false);
+  const commandListRef = useRef<HTMLDivElement>(null);
+
+  const scrollToTop = () => {
+    if (commandListRef.current) {
+      commandListRef.current.scrollTop = 0;
+    }
+  };
 
   return (
     <Popover
@@ -61,11 +69,14 @@ const ClassCombobox: React.FC<Props> = ({
           </Button>
         </PopoverTrigger>
       </div>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[300px] p-0">
         {timetableStudyProgramItems !== null && (
           <Command filter={(value, search) => smartSearch(value, search)}>
-            <CommandInput placeholder="Search study programs..." />
-            <CommandList>
+            <CommandInput
+              onInput={scrollToTop}
+              placeholder="Search study programs..."
+            />
+            <CommandList ref={commandListRef}>
               <CommandEmpty>No study program found.</CommandEmpty>
               <CommandGroup>
                 {timetableStudyProgramItems.map(timetableStudyProgramItem => (

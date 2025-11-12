@@ -28,19 +28,23 @@ import { handleError } from "@/lib/errors";
 import ClassCombobox from "./class-combobox";
 
 const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
   studyProgramId: z.number().int(),
 });
 
 interface Props {
+  selectedTimetableStudyProgramId?: number;
   timetableStudyPrograms: Record<number, string>;
 }
 
-const SignUpCard: React.FC<Props> = ({ timetableStudyPrograms }) => {
+const SignUpCard: React.FC<Props> = ({
+  selectedTimetableStudyProgramId,
+  timetableStudyPrograms,
+}) => {
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       email: "",
-      studyProgramId: -55,
+      studyProgramId: selectedTimetableStudyProgramId ?? -55,
     },
     resolver: zodResolver(formSchema),
   });

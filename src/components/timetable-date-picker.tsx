@@ -36,8 +36,9 @@ const TimetableDatePicker: React.FC<Props> = ({ range, setRange }) => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="p-0">
         <Calendar
+          className="h-full w-full rounded-md"
           classNames={{
             day_today: "bg-muted",
           }}
