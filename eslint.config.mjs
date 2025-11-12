@@ -25,7 +25,6 @@ export default defineConfig(
       parser: typescriptParser,
       parserOptions: {
         ecmaFeatures: { jsx: true },
-        project: "./tsconfig.json",
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
