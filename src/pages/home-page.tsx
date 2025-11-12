@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 import type { FsreError, Timetable } from "@/api/api";
 
@@ -12,10 +13,11 @@ import { useTimetableUrlState } from "@/hooks/useTimetableUrlState";
 import { dateToIsoWeek, isoWeekToDateRange } from "@/lib/utils";
 
 const HomePage: React.FC = () => {
+  const [isoWeek, setIsoWeek] = useState<`${number}-W${number}`>(
+    dateToIsoWeek(new Date())
+  );
   const {
-    isoWeek,
     selectedTimetableStudyProgramId,
-    setIsoWeek,
     setSelectedProgram,
     timetableStudyPrograms,
   } = useTimetableUrlState();

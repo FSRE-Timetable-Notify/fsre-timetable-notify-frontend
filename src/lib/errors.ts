@@ -8,7 +8,7 @@ export const handleError = (
 ) => {
   const message = mapErrorToMessage(error);
 
-  const title = Array.isArray(message) ? message[0] : "An error has occured";
+  const title = Array.isArray(message) ? message[0] : "An error has occurred";
   const description = Array.isArray(message) ? message[1] : message;
 
   const id = toast.error(title, {
