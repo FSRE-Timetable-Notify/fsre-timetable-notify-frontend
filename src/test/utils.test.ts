@@ -1,27 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import {
-  getSimilarityScore,
   isoWeekToDateRange,
   isoWeekToWeekStartDate,
   isValidISOWeek,
 } from "../lib/utils";
-
-describe("levenshteinSimilarity", () => {
-  it("should return 0.6 for identical strings", () => {
-    expect(getSimilarityScore("test", "test")).toBe(0.6);
-  });
-
-  it("should return 0 for completely different strings", () => {
-    expect(getSimilarityScore("abc", "xyz")).toBe(0);
-  });
-
-  it("should return a value between 0 and 0.6 for similar strings", () => {
-    const similarity = getSimilarityScore("kitten", "sitting");
-    expect(similarity).toBeGreaterThan(0);
-    expect(similarity).toBeLessThan(0.6);
-  });
-});
 
 describe("isValidISOWeek", () => {
   it("should return true for valid ISO week strings", () => {
