@@ -1,8 +1,7 @@
-import type { DateRange } from "react-day-picker";
-
-import { addDays, format, startOfWeek } from "date-fns";
+import { endOfWeek, format, startOfWeek } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { memo } from "react";
+import { type DateRange, rangeIncludesDate } from "react-day-picker";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -15,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   range?: DateRange;
-  setRange: (range: DateRange) => void;
+  setRange: (range: DateRange | undefined) => void;
 }
 
 const TimetableDatePicker: React.FC<Props> = ({ range, setRange }) => {
@@ -40,18 +39,26 @@ const TimetableDatePicker: React.FC<Props> = ({ range, setRange }) => {
         <Calendar
           className="h-full w-full rounded-md"
           classNames={{
-            day_today: "bg-muted",
+            today: "bg-muted rounded-md",
           }}
-          fixedWeeks
           ISOWeek
-          mode="range"
-          onDayClick={day => {
+          modifiers={{
+            range_end: range?.to,
+            range_middle: (date: Date) =>
+              range ? rangeIncludesDate(range, date, true) : false,
+            range_start: range?.from,
+            selected: range,
+          }}
+          onDayClick={(day, modifiers) => {
+            if (modifiers.selected) {
+              setRange(undefined);
+              return;
+            }
             setRange({
               from: startOfWeek(day),
-              to: addDays(startOfWeek(day), 6),
+              to: endOfWeek(day),
             });
           }}
-          selected={range}
           showOutsideDays
         />
       </PopoverContent>

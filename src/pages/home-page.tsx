@@ -81,7 +81,7 @@ const HomePage: React.FC = () => {
           <TimetableDatePicker
             range={isoWeekToDateRange(isoWeek)}
             setRange={range => {
-              if (range.from === undefined) return;
+              if (range?.from === undefined) return;
               const nextIsoWeek = dateToIsoWeek(range.from);
               setIsoWeek(nextIsoWeek);
             }}
