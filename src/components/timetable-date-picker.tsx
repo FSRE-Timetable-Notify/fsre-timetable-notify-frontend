@@ -1,5 +1,9 @@
-import { endOfWeek, format, startOfWeek } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { addWeeks, endOfWeek, format, startOfWeek } from "date-fns";
+import {
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { memo } from "react";
 import { type DateRange, rangeIncludesDate } from "react-day-picker";
 
@@ -18,51 +22,78 @@ interface Props {
 }
 
 const TimetableDatePicker: React.FC<Props> = ({ range, setRange }) => {
+  const handleNavigate = (direction: "next" | "prev") => {
+    if (!range?.from || !range.to) return;
+    const newFrom =
+      direction === "next" ? addWeeks(range.from, 1) : addWeeks(range.from, -1);
+    const newTo =
+      direction === "next" ? addWeeks(range.to, 1) : addWeeks(range.to, -1);
+    setRange({ from: newFrom, to: newTo });
+  };
+
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          className={cn(
-            "justify-start text-left font-normal",
-            !range && "text-muted-foreground"
-          )}
-          variant={"outline"}>
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {range?.from && range.to ? (
-            `${format(range.from, "LLLL dd. MM.")} - ${format(range.to, "LLLL dd. MM.")}`
-          ) : (
-            <span>Pick a week</span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="p-0">
-        <Calendar
-          className="h-full w-full rounded-md"
-          classNames={{
-            today: "bg-muted rounded-md",
-          }}
-          ISOWeek
-          modifiers={{
-            range_end: range?.to,
-            range_middle: (date: Date) =>
-              range ? rangeIncludesDate(range, date, true) : false,
-            range_start: range?.from,
-            selected: range,
-          }}
-          onDayClick={(day, modifiers) => {
-            if (modifiers.selected) {
-              setRange(undefined);
-              return;
-            }
-            setRange({
-              from: startOfWeek(day),
-              to: endOfWeek(day),
-            });
-          }}
-          showOutsideDays
-        />
-      </PopoverContent>
-    </Popover>
+    <div className="flex gap-2 max-md:mx-auto xl:px-16">
+      <Button
+        onClick={() => {
+          handleNavigate("prev");
+        }}
+        size="icon"
+        variant="outline">
+        <ChevronLeft />
+      </Button>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            className={cn(
+              "justify-start text-left font-normal",
+              !range && "text-muted-foreground"
+            )}
+            variant="outline">
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {range?.from && range.to ? (
+              `${format(range.from, "LLLL dd. MM.")} - ${format(range.to, "LLLL dd. MM.")}`
+            ) : (
+              <span>Pick a week</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="border-border p-0">
+          <Calendar
+            className="h-full w-full rounded-md"
+            classNames={{
+              today: "bg-muted rounded-md",
+            }}
+            ISOWeek
+            modifiers={{
+              range_end: range?.to,
+              range_middle: (date: Date) =>
+                range ? rangeIncludesDate(range, date, true) : false,
+              range_start: range?.from,
+              selected: range,
+            }}
+            onDayClick={(day, modifiers) => {
+              if (modifiers.selected) {
+                setRange(undefined);
+                return;
+              }
+              setRange({
+                from: startOfWeek(day),
+                to: endOfWeek(day),
+              });
+            }}
+            showOutsideDays
+          />
+        </PopoverContent>
+      </Popover>
+      <Button
+        onClick={() => {
+          handleNavigate("next");
+        }}
+        size="icon"
+        variant="outline">
+        <ChevronRight />
+      </Button>
+    </div>
   );
 };
 

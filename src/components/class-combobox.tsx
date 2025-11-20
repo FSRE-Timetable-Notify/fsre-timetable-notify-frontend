@@ -50,7 +50,7 @@ const ClassCombobox: React.FC<Props> = ({
     <Popover
       onOpenChange={setOpen}
       open={open}>
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-4 xl:px-16">
         <PopoverTrigger asChild>
           <Button
             aria-expanded={open}
@@ -69,7 +69,7 @@ const ClassCombobox: React.FC<Props> = ({
           </Button>
         </PopoverTrigger>
       </div>
-      <PopoverContent className="w-[300px] p-0">
+      <PopoverContent className="border-border w-[300px] p-0">
         {timetableStudyProgramItems !== null && (
           <Command filter={(value, search) => smartSearch(value, search)}>
             <CommandInput
