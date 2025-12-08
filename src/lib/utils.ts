@@ -1,7 +1,7 @@
 import type { DateRange } from "react-day-picker";
 
 import { type ClassValue, clsx } from "clsx";
-import { addDays, format, parseISO, startOfWeek } from "date-fns";
+import { addDays, format, parseISO, startOfISOWeek } from "date-fns";
 import { twMerge } from "tailwind-merge";
 
 import type { Timetable } from "@/api/api";
@@ -17,7 +17,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function dateToIsoWeek(date: Date): `${number}-W${number}` {
-  return format(date, "yyyy-'W'II") as `${number}-W${number}`;
+  // Use ISO week-numbering year (RRRR) so late-December weeks that belong to the next ISO year are encoded correctly
+  return format(date, "RRRR-'W'II") as `${number}-W${number}`;
 }
 
 export function formatDate(date: Date) {
@@ -76,7 +77,7 @@ export function isoWeekToWeekStartDate(isoWeek: `${number}-W${number}`) {
   const [year, week] = isoWeek.split("-W");
   const isoDate = `${year}-W${week}-1`;
 
-  return new Date(startOfWeek(parseISO(isoDate), { weekStartsOn: 1 }));
+  return new Date(startOfISOWeek(parseISO(isoDate)));
 }
 
 export function isValidISOWeek(isoWeek: `${number}-W${number}`) {
@@ -84,7 +85,7 @@ export function isValidISOWeek(isoWeek: `${number}-W${number}`) {
 }
 
 export function latinize(str: string) {
-  return str.replace(/[^A-Za-z0-9]/g, function (x) {
+  return str.replaceAll(/[^A-Za-z0-9]/g, function (x) {
     return characterMap[x] ?? x;
   });
 }
@@ -93,11 +94,11 @@ export function normalize(str: string): string {
   return str
     .toLowerCase()
     .normalize("NFD") // remove accents (e.g. "rač" → "rac")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, " ") // keep only alphanumeric
+    .replaceAll(/[\u0300-\u036f]/g, "")
+    .replaceAll(/[^a-z0-9]+/g, " ") // keep only alphanumeric
     .trim();
 }
 
 export function range(n: number) {
-  return [...Array(n).keys()];
+  return [...new Array(n).keys()];
 }

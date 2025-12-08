@@ -22,12 +22,16 @@ interface Props {
 }
 
 const TimetableDatePicker: React.FC<Props> = ({ range, setRange }) => {
+  const weekOptions = { weekStartsOn: 1 as const };
+
   const handleNavigate = (direction: "next" | "prev") => {
-    if (!range?.from || !range.to) return;
-    const newFrom =
-      direction === "next" ? addWeeks(range.from, 1) : addWeeks(range.from, -1);
-    const newTo =
-      direction === "next" ? addWeeks(range.to, 1) : addWeeks(range.to, -1);
+    if (!range?.from) return;
+
+    const step = direction === "next" ? 1 : -1;
+    const normalizedStart = startOfWeek(range.from, weekOptions);
+    const newFrom = addWeeks(normalizedStart, step);
+    const newTo = endOfWeek(newFrom, weekOptions);
+
     setRange({ from: newFrom, to: newTo });
   };
 
@@ -77,8 +81,8 @@ const TimetableDatePicker: React.FC<Props> = ({ range, setRange }) => {
                 return;
               }
               setRange({
-                from: startOfWeek(day),
-                to: endOfWeek(day),
+                from: startOfWeek(day, weekOptions),
+                to: endOfWeek(day, weekOptions),
               });
             }}
             showOutsideDays
