@@ -1,5 +1,5 @@
 import { Api } from "./api";
 
 export const client = new Api({
-  baseUrl: "http://mapokapo.zapto.org/api",
+  baseUrl: "https://mapokapo.zapto.org/api",
 });
