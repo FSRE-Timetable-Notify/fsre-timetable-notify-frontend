@@ -1,0 +1,10 @@
+services:
+  fsre-timetable-notify-frontend:
+    build: .
+    networks:
+      - nginx-proxy
+    restart: unless-stopped
+
+networks:
+  nginx-proxy:
+    external: true
