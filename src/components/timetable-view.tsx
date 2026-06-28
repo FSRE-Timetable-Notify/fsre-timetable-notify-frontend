@@ -66,15 +66,21 @@ const TimetableView: React.FC<Props> = ({ isoWeek, timetable }) => {
     return ((clamped - min) / (max - min)) * 100;
   }, [now]);
 
-  // don't show "now line" if not in the current week
+  // don't show "now line" if not in the current week or if the current day is outside the timetable days (e.g., weekend)
   const showTimeLine = useMemo(() => {
     const isCurrentWeek = dateToIsoWeek(now) === isoWeek;
-    return isCurrentWeek;
-  }, [now, isoWeek]);
+    const day = now.getDay(); // 0 = Sunday, 1 = Monday, ...
+    const isoDay = day === 0 ? 7 : day; // convert Sunday to ISO 7
+    // daysInTimetable is how many columns are shown (typically 5 for Mon-Fri, can be 6 or 7)
+    const isDayInTimetable = isoDay >= 1 && isoDay <= daysInTimetable;
+    return isCurrentWeek && isDayInTimetable;
+  }, [now, isoWeek, daysInTimetable]);
 
   const leftPercent = useMemo(() => {
+    const day = now.getDay(); // 0 = Sunday
+    const isoDay = day === 0 ? 7 : day;
     const zeroBasedIndex = Math.min(
-      Math.max(now.getDay() - 1, 0),
+      Math.max(isoDay - 1, 0),
       daysInTimetable - 1
     );
     const width = daysInTimetable > 0 ? 100 / daysInTimetable : 0;
@@ -187,7 +193,7 @@ const TimetableView: React.FC<Props> = ({ isoWeek, timetable }) => {
                   timetableEvent.startDateTime
                 }
                 style={{
-                  gridColumn: startDate.getDay(),
+                  gridColumn: (startDate.getDay() === 0 ? 7 : startDate.getDay()),
                   gridRowEnd: endIndex,
                   gridRowStart: startIndex,
                 }}>
